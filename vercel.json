@@ -4,7 +4,6 @@
   "outputDirectory": "frontend/dist",
   "devCommand": "npm run dev",
   "installCommand": "npm install --ignore-scripts",
-  "rootDirectory": ".",
   "framework": "vite",
   "rewrites": [
     {
