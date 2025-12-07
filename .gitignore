@@ -10,29 +10,10 @@ build/
 */build/
 frontend/public/bundle-info.json
 
-# Android
-*.iml
-.gradle/
-local.properties
-.idea/
+# Android (removed - Web PWA only)
+# Keeping minimal Android ignores in case of future needs
 *.apk
-*.ap_
 *.aab
-*.dex
-*.class
-bin/
-gen/
-out/
-release/
-app/release/
-app/build/
-build/
-.gradle/
-captures/
-.externalNativeBuild/
-.cxx/
-*.keystore
-!debug.keystore
 
 # Environment variables
 .env
@@ -69,6 +50,9 @@ coverage/
 tmp/
 temp/
 **/tmp/
+*.tmp*
+*.bak
+*~
 
 # Enforcement lock backups (keep lock directory tracked, but ignore backups)
 .enforcement-lock/*.backup.*
