@@ -8,6 +8,7 @@ build/
 *.tsbuildinfo
 */dist/
 */build/
+frontend/public/bundle-info.json
 
 # Android
 *.iml
