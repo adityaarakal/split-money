@@ -1,0 +1,52 @@
+{
+  "name": "split-money",
+  "version": "1.0.0",
+  "description": "Android app clone of Splitwise - Expense splitting and management",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install",
+    "prepare": "husky",
+    "install-protection": "bash scripts/install-git-protection.sh",
+    "init-enforcement-lock": "bash scripts/validate-enforcement-lock.sh",
+    "unlock-enforcement": "bash scripts/unlock-enforcement.sh",
+    "version": "1.0.0",
+    "version:set": "bash scripts/version-utils.sh && bash -c 'set_version $1' _",
+    "version:major": "bash scripts/bump-version.sh major",
+    "version:minor": "bash scripts/bump-version.sh minor",
+    "version:patch": "bash scripts/bump-version.sh patch",
+    "test:all": "bash scripts/run-all-tests.sh",
+    "test:e2e": "cd frontend && npm run test:e2e",
+    "test:e2e:all": "cd frontend && npm run test:e2e:all",
+    "test:lock": "bash scripts/lock-test.sh",
+    "test:unlock": "bash scripts/unlock-test.sh",
+    "test:validate-locks": "bash scripts/validate-test-locks.sh",
+    "doc:lock": "bash scripts/lock-doc.sh",
+    "doc:unlock": "bash scripts/unlock-doc.sh",
+    "doc:validate-locks": "bash scripts/validate-doc-locks.sh",
+    "lighthouse": "cd frontend && npm run lighthouse",
+    "pre-deploy": "bash scripts/pre-deployment-check.sh",
+    "release:check": "bash scripts/check-release-qualification.sh",
+    "release:coverage": "bash scripts/check-test-coverage.sh",
+    "release:map": "bash scripts/map-locked-test-coverage.sh",
+    "release:manage": "bash scripts/manage-release-branch.sh",
+    "release:protect": "bash scripts/protect-release-branch.sh"
+  },
+  "keywords": [
+    "android",
+    "kotlin",
+    "splitwise",
+    "expense-splitting"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
+
+

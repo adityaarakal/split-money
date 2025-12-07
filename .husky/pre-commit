@@ -1,0 +1,492 @@
+#!/usr/bin/env sh
+
+# ============================================================================
+# STRICT COMPLIANCE ENFORCEMENT - ZERO TOLERANCE POLICY
+# ============================================================================
+
+echo "🚨 STRICT COMPLIANCE CHECK - ZERO TOLERANCE POLICY"
+echo "⚠️  NO BYPASSING METHODS ALLOWED - ALL CHECKS MUST PASS"
+echo ""
+
+# ============================================================================
+# ABSOLUTE PROHIBITION: --no-verify DETECTION
+# ============================================================================
+# Note: If we're running, --no-verify wasn't used (Git skips hooks with it)
+# But we check parent processes and environment anyway for maximum security
+
+echo "🔍 Checking for bypass attempts..."
+
+# Check environment variables
+if [ "$HUSKY_SKIP_HOOKS" = "1" ] || [ "$HUSKY" = "0" ] || [ "$SKIP_HOOKS" = "1" ]; then
+    echo "❌ CRITICAL ERROR: Pre-commit hooks were bypassed!"
+    echo "❌ This violates the ZERO TOLERANCE POLICY"
+    echo "❌ All commits MUST pass all validation checks"
+    echo ""
+    echo "🔒 ENFORCEMENT: Commit blocked due to bypass attempt"
+    echo "📋 REQUIRED: Fix all issues and commit without bypassing"
+    echo ""
+    exit 1
+fi
+
+# Check parent process for --no-verify flag (works on Unix-like systems)
+if command -v ps >/dev/null 2>&1; then
+    PARENT_CMD=$(ps -p $PPID -o args= 2>/dev/null || echo "")
+    if echo "$PARENT_CMD" | grep -qE "(--no-verify|-n)"; then
+        echo "❌ CRITICAL ERROR: --no-verify flag detected in commit command!"
+        echo "❌ ABSOLUTE PROHIBITION: --no-verify is FORBIDDEN at all costs"
+        echo "❌ NO EXCEPTIONS - NOT EVEN WITH USER PERMISSION"
+        echo ""
+        echo "🔒 ENFORCEMENT: Commit blocked - --no-verify is ABSOLUTELY PROHIBITED"
+        echo "📋 REQUIRED: Fix all issues and commit without --no-verify"
+        echo "📋 RULE VIOLATION: This violates Zero Bypassing Tolerance"
+        echo ""
+        exit 1
+    fi
+fi
+
+# Check for other bypassing methods
+if [ -n "$SKIP_HOOKS" ] || [ -n "$SKIP_PRE_COMMIT" ] || [ -n "$BYPASS_CHECKS" ]; then
+    echo "❌ CRITICAL ERROR: Bypass flags detected!"
+    echo "❌ Detected bypass flags: SKIP_HOOKS, SKIP_PRE_COMMIT, or BYPASS_CHECKS"
+    echo "❌ This violates the ZERO TOLERANCE POLICY"
+    echo ""
+    echo "🔒 ENFORCEMENT: Commit blocked due to bypass attempt"
+    exit 1
+fi
+
+# ============================================================================
+# PROTECTION: Prevent commits to main branch
+# ============================================================================
+current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+if [ "$current_branch" = "main" ]; then
+  echo "❌ Error: Direct commits to main branch are not allowed!"
+  echo "Please create a feature branch and submit a pull request instead."
+  echo ""
+  echo "Suggested workflow:"
+  echo "  1. git checkout -b feature/your-feature-name"
+  echo "  2. Make your changes"
+  echo "  3. git add . && git commit -m 'your message'"
+  echo "  4. git push origin feature/your-feature-name"
+  echo "  5. Create a pull request on GitHub"
+  echo ""
+  echo "🔒 ENFORCEMENT: Main branch is protected"
+  echo "📋 REQUIRED: Use feature branches and PR workflow"
+  exit 1
+fi
+
+# ============================================================================
+# VERIFY GIT WRAPPER IS ACTIVE
+# ============================================================================
+# Check if git-wrapper is being used
+if command -v ps >/dev/null 2>&1; then
+    CMD_LINE=$(ps -p $$ -o args= 2>/dev/null || echo "")
+    if ! echo "$CMD_LINE" | grep -q "git-wrapper.sh"; then
+        # Check parent processes too
+        PARENT_LINE=$(ps -p $PPID -o args= 2>/dev/null || echo "")
+        if ! echo "$PARENT_LINE" | grep -q "git-wrapper.sh"; then
+            echo "⚠️  WARNING: Git wrapper not detected - protection may be bypassed"
+            echo "⚠️  Please run: bash scripts/install-git-protection.sh"
+            echo "⚠️  For now, continuing with hook checks..."
+            echo ""
+        fi
+    fi
+fi
+
+# ============================================================================
+# ENFORCEMENT FILES LOCK VALIDATION
+# ============================================================================
+# Validate that enforcement files are not modified (only new checks can be added)
+# THIS CHECK CANNOT BE REMOVED OR MODIFIED - IT IS PART OF THE LOCK SYSTEM
+# Skip lock validation on initial setup (when lock file doesn't exist yet)
+# Also skip on initial commit (when there are no commits yet)
+if [ -f "scripts/validate-enforcement-lock.sh" ]; then
+    # Check if this is the initial commit (no commits in repository)
+    if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
+        echo "📋 Initial commit detected - skipping enforcement lock validation"
+        echo "🔒 Initializing enforcement file locks..."
+        bash scripts/validate-enforcement-lock.sh || true
+        echo "✅ Enforcement locks initialized"
+        echo ""
+    elif [ -f ".enforcement-lock/checksums.txt" ]; then
+        # Lock file exists - validate locks
+        echo "🔒 Validating enforcement file locks..."
+        bash scripts/validate-enforcement-lock.sh
+        lock_status=$?
+        if [ $lock_status -ne 0 ]; then
+            echo ""
+            echo "❌ CRITICAL: Enforcement file lock validation failed"
+            echo "❌ ENFORCEMENT: Commit blocked - Files are locked"
+            echo "❌ MODIFICATION OF ENFORCEMENT FILES IS FORBIDDEN"
+            echo "📋 REQUIRED: Only additions of NEW checks allowed, not modifications"
+            echo "📋 POLICY: AI agents and users cannot modify existing checks"
+            echo ""
+            echo "To add a NEW check (requires explicit unlock):"
+            echo "  1. Run: bash scripts/unlock-enforcement.sh"
+            echo "  2. Provide reason for NEW check"
+            echo "  3. Add new check (do not modify existing ones)"
+            echo "  4. Commit (locks will re-initialize)"
+            echo ""
+            echo "See docs/ENFORCEMENT_LOCK.md for details"
+            exit 1
+        fi
+        echo "✅ Enforcement file locks validated"
+        echo ""
+    else
+        # Lock file doesn't exist - initialize locks (first run)
+        echo "🔒 Initializing enforcement file locks..."
+        bash scripts/validate-enforcement-lock.sh
+        echo "✅ Enforcement locks initialized"
+        echo ""
+    fi
+fi
+
+# ============================================================================
+# STEP 1: MANDATORY VERSION BUMP VALIDATION
+# ============================================================================
+echo "📋 Step 1/6: Mandatory Version Bump Validation"
+echo "🚨 MANDATORY CHECK: Commit cannot proceed without version bump"
+echo "📋 REQUIRED: Branch version must be ahead of main branch version"
+echo ""
+bash scripts/validate-version-bump.sh
+if [ $? -ne 0 ]; then
+  echo "❌ CRITICAL: Version bump validation failed"
+  echo "❌ ENFORCEMENT: Commit blocked - Version bump is MANDATORY"
+  echo "📋 REQUIRED: Branch version must be ahead of main branch version"
+  echo "⚠️  This check CANNOT BE BYPASSED - All branches must have version bump"
+  exit 1
+fi
+echo "✅ Version bump validation passed!"
+echo ""
+
+# ============================================================================
+# STEP 2: LINTING VALIDATION (Frontend + Android)
+# ============================================================================
+echo "📋 Step 2/6: Linting Validation"
+echo "Running lint validation (excluding test files)..."
+
+# Frontend linting (if frontend exists)
+if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
+  echo "Running ESLint validation for frontend..."
+  cd frontend
+  # Run lint on production code only (exclude test files and __tests__ directories)
+  npx eslint 'src/**/*.{ts,tsx}' --ignore-pattern '**/__tests__/**' --ignore-pattern '**/*.test.ts' --ignore-pattern '**/*.test.tsx' --report-unused-disable-directives --max-warnings 3
+  if [ $? -ne 0 ]; then
+    echo "❌ CRITICAL: ESLint errors or warnings found in frontend production code."
+    echo "❌ ALL production code errors must be fixed before commit."
+    echo "🔒 ENFORCEMENT: Commit blocked - Fix production code errors first"
+    echo "📋 REQUIRED: Run 'cd frontend && npm run lint' and fix ALL production code errors/warnings"
+    echo "ℹ️  Note: Test file errors are acceptable and excluded from this check"
+    cd ..
+    exit 1
+  fi
+  cd ..
+  echo "✅ Frontend linting validation passed!"
+fi
+
+# Android linting (if Android project exists)
+if [ -f "app/build.gradle" ] || [ -f "app/build.gradle.kts" ]; then
+  echo "Running Android lint validation..."
+  if [ -f "gradlew" ]; then
+    ./gradlew ktlintCheck --no-daemon || ./gradlew lint --no-daemon
+    if [ $? -ne 0 ]; then
+      echo "❌ CRITICAL: Android lint errors found in production code."
+      echo "❌ ALL production code errors must be fixed before commit."
+      echo "🔒 ENFORCEMENT: Commit blocked - Fix production code errors first"
+      echo "📋 REQUIRED: Run './gradlew ktlintCheck' or './gradlew lint' and fix ALL errors/warnings"
+      echo "ℹ️  Note: Test file errors are acceptable and excluded from this check"
+      exit 1
+    fi
+  else
+    echo "⚠️  Gradle wrapper not found - skipping Android lint check"
+  fi
+  echo "✅ Android linting validation passed!"
+fi
+
+echo "✅ Production code linting validation passed!"
+echo ""
+
+# ============================================================================
+# STEP 3: TYPE CHECKING (Frontend TypeScript + Android Kotlin)
+# ============================================================================
+# NOTE: This check can be modified, but only by adding NEW checks
+# Modifying existing type checking logic is FORBIDDEN (enforced by lock)
+echo "📋 Step 3/6: Type Checking"
+
+# Frontend TypeScript checking
+if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
+  echo "Running TypeScript compilation check for frontend..."
+  cd frontend
+  npx tsc --noEmit
+  if [ $? -ne 0 ]; then
+    echo "❌ CRITICAL: TypeScript compilation errors found."
+    echo "❌ ALL TypeScript errors must be fixed before commit."
+    echo "🔒 ENFORCEMENT: Commit blocked - Fix TypeScript errors first"
+    echo "📋 REQUIRED: Fix ALL TypeScript compilation errors"
+    cd ..
+    exit 1
+  fi
+  cd ..
+  echo "✅ Frontend type checking passed!"
+fi
+
+# Android Kotlin checking
+if [ -f "gradlew" ]; then
+  echo "Running Kotlin compilation check for Android..."
+  ./gradlew compileDebugKotlin --no-daemon || ./gradlew compileKotlin --no-daemon
+  if [ $? -ne 0 ]; then
+    echo "❌ CRITICAL: Kotlin compilation errors found."
+    echo "❌ ALL Kotlin errors must be fixed before commit."
+    echo "🔒 ENFORCEMENT: Commit blocked - Fix Kotlin errors first"
+    echo "📋 REQUIRED: Fix ALL Kotlin compilation errors"
+    exit 1
+  fi
+  echo "✅ Android type checking passed!"
+fi
+
+echo "✅ Type checking passed!"
+echo ""
+
+# ============================================================================
+# STEP 4: BUILD VALIDATION (Frontend + Android)
+# ============================================================================
+# NOTE: This check can be modified, but only by adding NEW checks
+# Modifying existing build validation is FORBIDDEN (enforced by lock)
+echo "📋 Step 4/6: Build Validation"
+
+# Frontend build validation
+if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
+  echo "Running frontend build validation..."
+  cd frontend
+  npm run build
+  if [ $? -ne 0 ]; then
+    echo "❌ CRITICAL: Frontend build validation failed."
+    echo "❌ Production build must succeed - no build errors allowed"
+    echo "🔒 ENFORCEMENT: Commit blocked - Fix build errors first"
+    echo "📋 REQUIRED: Run 'cd frontend && npm run build' and fix ALL build errors"
+    cd ..
+    exit 1
+  fi
+  cd ..
+  echo "✅ Frontend build validation passed!"
+fi
+
+# Android build validation
+if [ -f "gradlew" ]; then
+  echo "Running Android build validation..."
+  ./gradlew assembleDebug --no-daemon || ./gradlew build --no-daemon
+  if [ $? -ne 0 ]; then
+    echo "❌ CRITICAL: Android build validation failed."
+    echo "❌ Production build must succeed - no build errors allowed"
+    echo "🔒 ENFORCEMENT: Commit blocked - Fix build errors first"
+    echo "📋 REQUIRED: Run './gradlew assembleDebug' and fix ALL build errors"
+    exit 1
+  fi
+  echo "✅ Android build validation passed!"
+fi
+
+echo "✅ Build validation passed!"
+echo ""
+
+# ============================================================================
+# STEP 5: TEST LOCK VALIDATION (TDD ENFORCEMENT)
+# ============================================================================
+# Validate that locked test files have not been modified
+# TDD RULE: Locked tests are DELIVERED features - they cannot be modified
+# This check CANNOT BE BYPASSED - it is part of TDD enforcement
+# NOTE: This check can be modified, but only by adding NEW checks
+# Modifying existing test lock validation is FORBIDDEN (enforced by lock)
+echo "📋 Step 5/7: Test Lock Validation (TDD Enforcement)"
+echo "🚨 TDD RULE: Locked tests are DELIVERED features (immutable)"
+echo "🚨 BYPASS PROHIBITED: This check cannot be skipped or bypassed"
+echo "Validating locked test files..."
+if [ -f "scripts/validate-test-locks.sh" ]; then
+  bash scripts/validate-test-locks.sh
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ CRITICAL: Test lock validation failed"
+    echo "❌ Locked test files have been modified"
+    echo ""
+    echo "🔒 ENFORCEMENT: Commit blocked - Locked tests cannot be modified"
+    echo "📋 TDD RULE: Locked tests are DELIVERED features"
+    echo "📋 REQUIRED: Fix your IMPLEMENTATION to make tests pass"
+    echo "📋 DO NOT: Modify locked test files"
+    echo ""
+    echo "⚠️  BYPASS PROHIBITED: This check cannot be skipped"
+    echo "⚠️  Even AI agents cannot bypass this check"
+    echo "⚠️  Only user can unlock tests with explicit permission"
+    echo ""
+    echo "📋 To unlock (requires user permission):"
+    echo "   bash scripts/unlock-test.sh <test-file-path>"
+    exit 1
+  fi
+  echo "✅ Test lock validation passed!"
+else
+  echo "⚠️  Test lock validation script not found - skipping"
+fi
+echo ""
+
+# ============================================================================
+# STEP 6: DOCUMENTATION LOCK VALIDATION
+# ============================================================================
+# Validate that locked documentation files have not been modified
+# LOCK POLICY: Locked docs are DELIVERED documentation - they cannot be modified
+# This check CANNOT BE BYPASSED - it is part of lock policy enforcement
+# NOTE: This check can be modified, but only by adding NEW checks
+# Modifying existing doc lock validation is FORBIDDEN (enforced by lock)
+echo "📋 Step 6/7: Documentation Lock Validation"
+echo "🚨 LOCK POLICY: Locked docs are DELIVERED documentation (immutable)"
+echo "🚨 BYPASS PROHIBITED: This check cannot be skipped or bypassed"
+echo "Validating locked documentation files..."
+if [ -f "scripts/validate-doc-locks.sh" ]; then
+  bash scripts/validate-doc-locks.sh
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ CRITICAL: Documentation lock validation failed"
+    echo "❌ Locked documentation files have been modified"
+    echo ""
+    echo "🔒 ENFORCEMENT: Commit blocked - Locked docs cannot be modified"
+    echo "📋 LOCK POLICY: Locked docs are DELIVERED documentation"
+    echo "📋 REQUIRED: Restore locked documentation or unlock it first"
+    echo ""
+    echo "⚠️  BYPASS PROHIBITED: This check cannot be skipped"
+    echo "⚠️  Even AI agents cannot bypass this check"
+    echo "⚠️  Only user can unlock docs with explicit permission"
+    echo ""
+    echo "📋 To unlock (requires user permission):"
+    echo "   bash scripts/unlock-doc.sh <doc-file-path>"
+    exit 1
+  fi
+  echo "✅ Documentation lock validation passed!"
+else
+  echo "⚠️  Documentation lock validation script not found - skipping"
+fi
+echo ""
+
+# ============================================================================
+# STEP 7: MANDATORY TEST SUITE (TDD APPROACH)
+# ============================================================================
+# Run Android test suite
+# TDD RULE: Locked tests are DELIVERED features - they define correctness
+# If tests fail, fix IMPLEMENTATION, NOT the tests
+# This check CANNOT BE BYPASSED - it is mandatory for TDD enforcement
+# NOTE: This check can be modified, but only by adding NEW checks
+# Modifying existing test execution is FORBIDDEN (enforced by lock)
+echo "📋 Step 7/7: Mandatory Test Suite (TDD Approach)"
+echo "🚨 TDD RULE: Locked tests are DELIVERED features (immutable)"
+echo "🚨 BYPASS PROHIBITED: This check cannot be skipped or bypassed"
+echo "🚨 AI AGENTS: You cannot bypass this check - tests must pass"
+echo "Running Android test suite..."
+
+# MANDATORY: Gradle must be available
+if [ ! -f "gradlew" ]; then
+  echo "⚠️  Gradle wrapper not found - skipping test check"
+  echo "⚠️  Set up Gradle wrapper: gradle wrapper"
+else
+  # TDD RULE: Locked tests are DELIVERED features - they define correctness
+  # If tests fail, fix IMPLEMENTATION, NOT the tests
+  echo "🚨 TDD RULE: Locked tests are DELIVERED features"
+  echo "📋 If tests fail → Fix IMPLEMENTATION, NOT tests"
+  # MANDATORY: Run test suite - they must pass
+  echo "🚨 MANDATORY CHECK: Test suite must pass"
+  ./gradlew test --no-daemon || ./gradlew testDebugUnitTest --no-daemon
+  TEST_STATUS=$?
+  if [ $TEST_STATUS -ne 0 ]; then
+    echo ""
+    echo "❌ CRITICAL: Test suite failed"
+    echo "❌ All tests must pass before commit"
+    echo ""
+    echo "🔒 ENFORCEMENT: Commit blocked - Fix failing tests first"
+    echo "📋 TDD RULE: Locked tests are DELIVERED features"
+    echo "📋 REQUIRED: Fix your IMPLEMENTATION to make tests pass"
+    echo "📋 DO NOT: Modify locked test files"
+    echo ""
+    echo "⚠️  BYPASS PROHIBITED: This check cannot be skipped"
+    echo "⚠️  Even AI agents cannot bypass this check"
+    echo "⚠️  Even with --no-verify, server-side checks will block"
+    echo "⚠️  Tests MUST pass - no exceptions"
+    echo ""
+    echo "💡 TDD Approach:"
+    echo "   • Tests define what 'working' means"
+    echo "   • Implementation must conform to tests"
+    echo "   • If tests fail → Fix implementation, NOT tests"
+    echo ""
+    echo "📋 Steps to fix:"
+    echo "   1. Review failing test output above"
+    echo "   2. Fix your implementation to make tests pass"
+    echo "   3. Run './gradlew test' to verify"
+    echo "   4. Commit only when tests pass"
+    echo ""
+    echo "🚨 MANDATORY: This check CANNOT BE BYPASSED - All tests must pass"
+    exit 1
+  fi
+  echo "✅ Test suite passed!"
+fi
+echo ""
+
+# ============================================================================
+# AUTO-ADD GENERATED FILES
+# ============================================================================
+# Auto-add files that may have been created/modified during pre-commit hooks
+# These files should be included in the same commit
+
+echo ""
+echo "📋 Auto-adding generated/modified files..."
+
+# List of files that might be generated/modified during pre-commit
+GENERATED_FILES=(
+  ".enforcement-lock/checksums.txt"
+  "VERSION.txt"
+  "frontend/public/version.json"
+)
+
+FILES_ADDED=0
+
+# Check each file in the list
+for file in "${GENERATED_FILES[@]}"; do
+  if [ -f "$file" ]; then
+    # Check git status to see if file is untracked or modified
+    # Use git status --porcelain for reliable detection
+    FILE_STATUS=$(git status --porcelain "$file" 2>/dev/null || echo "")
+    
+    if [ -n "$FILE_STATUS" ]; then
+      # File has changes (modified or untracked)
+      # Check if it starts with ?? (untracked) or has changes (modified)
+      if echo "$FILE_STATUS" | grep -q "^??" || echo "$FILE_STATUS" | grep -qE "^ M|^M |^MM"; then
+        git add "$file" 2>/dev/null && echo "  ✅ Added: $file" && ((FILES_ADDED++)) || true
+      fi
+    fi
+  fi
+done
+
+# Also check for any other files in enforcement lock directory
+if [ -d ".enforcement-lock" ]; then
+  for file in .enforcement-lock/*; do
+    if [ -f "$file" ]; then
+      FILE_STATUS=$(git status --porcelain "$file" 2>/dev/null || echo "")
+      if [ -n "$FILE_STATUS" ]; then
+        # File has changes (modified or untracked)
+        if echo "$FILE_STATUS" | grep -q "^??" || echo "$FILE_STATUS" | grep -qE "^ M|^M |^MM"; then
+          git add "$file" 2>/dev/null && echo "  ✅ Added: $file" && ((FILES_ADDED++)) || true
+        fi
+      fi
+    fi
+  done
+fi
+
+if [ $FILES_ADDED -gt 0 ]; then
+  echo "✅ Auto-added $FILES_ADDED generated/modified file(s) to commit"
+else
+  echo "✅ No generated files to add"
+fi
+
+# ============================================================================
+# SUCCESS - ALL CHECKS PASSED
+# ============================================================================
+echo ""
+echo "🎉 ALL PRE-COMMIT VALIDATIONS PASSED!"
+echo "✅ Your code meets ALL quality standards"
+echo "✅ Ready to commit!"
+echo ""
+echo "🔒 ENFORCEMENT STATUS: COMPLIANT"
+echo "📋 POLICY: ZERO TOLERANCE - NO BYPASSING ALLOWED"
+echo "✅ RESULT: Commit approved - All standards met"

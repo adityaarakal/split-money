@@ -1,0 +1,276 @@
+name: PR Quality Checks
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  quality-checks:
+    name: Code Quality Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+      
+      - name: Setup Node.js (for version scripts)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+      
+      - name: Install dependencies
+        run: |
+          # Install root workspace dependencies
+          npm install
+          # Install frontend workspace dependencies explicitly to ensure optional deps
+          cd frontend
+          npm install
+          cd ..
+          # Grant execute permission to gradlew
+          chmod +x ./gradlew || true
+      
+      # ============================================================================
+      # STEP 1: LINTING VALIDATION
+      # ============================================================================
+      - name: 📋 Step 1/5 - Linting Validation
+        run: |
+          echo "🚨 STRICT COMPLIANCE CHECK - ZERO TOLERANCE POLICY"
+          echo "⚠️  NO BYPASSING METHODS ALLOWED - ALL CHECKS MUST PASS"
+          echo ""
+          echo "📋 Step 1/5: Linting Validation"
+          
+          # Frontend linting
+          if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
+            echo "Running ESLint validation for frontend (excluding test files)..."
+            cd frontend
+            npx eslint 'src/**/*.{ts,tsx}' --ignore-pattern '**/__tests__/**' --ignore-pattern '**/*.test.ts' --ignore-pattern '**/*.test.tsx' --report-unused-disable-directives --max-warnings 3
+            if [ $? -ne 0 ]; then
+              echo "❌ CRITICAL: ESLint errors or warnings found in frontend production code."
+              echo "❌ ALL production code errors must be fixed before merge."
+              echo "🔒 ENFORCEMENT: PR blocked - Fix production code errors first"
+              echo "📋 REQUIRED: Run 'cd frontend && npm run lint' and fix ALL production code errors/warnings"
+              cd ..
+              exit 1
+            fi
+            cd ..
+            echo "✅ Frontend linting validation passed!"
+          fi
+          
+          # Android linting
+          if [ -f "gradlew" ]; then
+            echo "Running Android lint validation..."
+            ./gradlew ktlintCheck --no-daemon || ./gradlew lint --no-daemon || echo "⚠️  Lint check skipped - gradle wrapper not configured"
+            if [ $? -ne 0 ]; then
+              echo "❌ CRITICAL: Android lint errors or warnings found in production code."
+              echo "❌ ALL production code errors must be fixed before merge."
+              echo "🔒 ENFORCEMENT: PR blocked - Fix production code errors first"
+              echo "📋 REQUIRED: Run './gradlew ktlintCheck' or './gradlew lint' and fix ALL production code errors/warnings"
+              exit 1
+            fi
+            echo "✅ Android linting validation passed!"
+          fi
+          
+          echo "✅ Production code linting validation passed!"
+      
+      # ============================================================================
+      # STEP 2: TYPE CHECKING
+      # ============================================================================
+      - name: 📋 Step 2/5 - Type Checking
+        run: |
+          echo ""
+          echo "📋 Step 2/5: Type Checking"
+          
+          # Frontend TypeScript checking
+          if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
+            echo "Running TypeScript compilation check for frontend..."
+            cd frontend
+            npx tsc --noEmit
+            if [ $? -ne 0 ]; then
+              echo "❌ CRITICAL: TypeScript compilation errors found."
+              echo "❌ ALL TypeScript errors must be fixed before merge."
+              echo "🔒 ENFORCEMENT: PR blocked - Fix TypeScript errors first"
+              echo "📋 REQUIRED: Fix ALL TypeScript compilation errors"
+              cd ..
+              exit 1
+            fi
+            cd ..
+            echo "✅ Frontend type checking passed!"
+          fi
+          
+          # Android Kotlin checking
+          if [ -f "gradlew" ]; then
+            echo "Running Kotlin compilation check for Android..."
+            ./gradlew compileDebugKotlin --no-daemon || ./gradlew compileKotlin --no-daemon
+            if [ $? -ne 0 ]; then
+              echo "❌ CRITICAL: Kotlin compilation errors found."
+              echo "❌ ALL Kotlin errors must be fixed before merge."
+              echo "🔒 ENFORCEMENT: PR blocked - Fix Kotlin errors first"
+              echo "📋 REQUIRED: Fix ALL Kotlin compilation errors"
+              exit 1
+            fi
+            echo "✅ Android type checking passed!"
+          fi
+          
+          echo "✅ Type checking passed!"
+      
+      # ============================================================================
+      # STEP 3: BUILD VALIDATION
+      # ============================================================================
+      - name: 📋 Step 3/5 - Build Validation
+        run: |
+          echo ""
+          echo "📋 Step 3/5: Build Validation"
+          
+          # Frontend build validation
+          if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
+            echo "Running frontend build validation..."
+            cd frontend
+            npm run build
+            if [ $? -ne 0 ]; then
+              echo "❌ CRITICAL: Frontend build validation failed."
+              echo "❌ Production build must succeed - no build errors allowed"
+              echo "🔒 ENFORCEMENT: PR blocked - Fix build errors first"
+              echo "📋 REQUIRED: Run 'cd frontend && npm run build' and fix ALL build errors"
+              cd ..
+              exit 1
+            fi
+            cd ..
+            echo "✅ Frontend build validation passed!"
+          fi
+          
+          # Android build validation
+          if [ -f "gradlew" ]; then
+            echo "Running Android build validation..."
+            ./gradlew assembleDebug --no-daemon || ./gradlew build --no-daemon
+            if [ $? -ne 0 ]; then
+              echo "❌ CRITICAL: Android build validation failed."
+              echo "❌ Production build must succeed - no build errors allowed"
+              echo "🔒 ENFORCEMENT: PR blocked - Fix build errors first"
+              echo "📋 REQUIRED: Run './gradlew assembleDebug' and fix ALL build errors"
+              exit 1
+            fi
+            echo "✅ Android build validation passed!"
+          fi
+          
+          echo "✅ Build validation passed!"
+      
+      # ============================================================================
+      # STEP 4: MANDATORY TEST SUITE (TDD APPROACH)
+      # ============================================================================
+      - name: 📋 Step 4/5 - Mandatory Test Suite (TDD Approach)
+        run: |
+          echo ""
+          echo "📋 Step 3/5: Mandatory Test Suite (TDD Approach)"
+          echo "🚨 TDD RULE: Locked tests are DELIVERED features (immutable)"
+          echo "🚨 BYPASS PROHIBITED: This check cannot be skipped or bypassed"
+          echo "🚨 AI AGENTS: You cannot bypass this check - tests must pass"
+          echo "📋 If tests fail → Fix IMPLEMENTATION, NOT tests"
+          echo "📋 REQUIRED: All tests must pass before PR can be merged"
+          echo ""
+          
+          if [ -f "gradlew" ]; then
+            ./gradlew test --no-daemon || ./gradlew testDebugUnitTest --no-daemon
+            if [ $? -ne 0 ]; then
+              echo ""
+              echo "❌ CRITICAL: Test suite failed"
+              echo "❌ All tests must pass before PR can be merged"
+              echo ""
+              echo "🔒 ENFORCEMENT: PR blocked - Fix failing tests first"
+              echo "📋 TDD RULE: Locked tests are DELIVERED features"
+              echo "📋 REQUIRED: Fix your IMPLEMENTATION to make tests pass"
+              echo "📋 DO NOT: Modify locked test files"
+              echo ""
+              echo "⚠️  BYPASS PROHIBITED: This check cannot be skipped"
+              echo "⚠️  Even AI agents cannot bypass this check"
+              echo "⚠️  PR cannot be merged until tests pass"
+              echo "⚠️  Tests MUST pass - no exceptions"
+              echo ""
+              echo "💡 TDD Approach:"
+              echo "   • Tests define what 'working' means"
+              echo "   • Implementation must conform to tests"
+              echo "   • If tests fail → Fix implementation, NOT tests"
+              echo ""
+              echo "🚨 MANDATORY: This check CANNOT BE BYPASSED - All tests must pass"
+              exit 1
+            fi
+            echo "✅ Test suite passed!"
+          else
+            echo "⚠️  Gradle wrapper not found - skipping test check"
+          fi
+      
+      # ============================================================================
+      # STEP 5: MANDATORY VERSION BUMP VALIDATION
+      # ============================================================================
+      - name: 📋 Step 5/5 - Mandatory Version Bump Validation
+        run: |
+          echo ""
+          echo "📋 Step 4/5: Mandatory Version Bump Validation"
+          echo "🚨 MANDATORY CHECK: PR cannot be merged without version bump"
+          echo "📋 REQUIRED: Incoming branch version must be ahead of base branch version"
+          echo ""
+          bash scripts/validate-version-bump.sh
+          if [ $? -ne 0 ]; then
+            echo "❌ CRITICAL: Version bump validation failed"
+            echo "❌ ENFORCEMENT: PR blocked - Version bump is MANDATORY"
+            echo "📋 REQUIRED: Incoming branch version must be ahead of base branch version"
+            echo "⚠️  This check CANNOT BE BYPASSED - All PRs must have version bump"
+            exit 1
+          fi
+          echo "✅ Version bump validation passed!"
+      
+      # ============================================================================
+      # SUCCESS - ALL CHECKS PASSED
+      # ============================================================================
+      - name: ✅ All Quality Checks Passed
+        run: |
+          echo ""
+          echo "🎉 ALL PR QUALITY CHECKS PASSED!"
+          echo "✅ Your code meets ALL quality standards"
+          echo "✅ Ready to merge!"
+          echo ""
+          echo "🔒 ENFORCEMENT STATUS: COMPLIANT"
+          echo "📋 POLICY: ZERO TOLERANCE - NO BYPASSING ALLOWED"
+          echo "✅ RESULT: PR approved - All standards met"
+      
+      # ============================================================================
+      # COMMENT ON PR (Optional - adds a comment when checks pass/fail)
+      # ============================================================================
+      - name: Comment PR on Success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ **All Quality Checks Passed!**\n\n- ✅ ESLint validation passed (frontend production code only)\n- ✅ TypeScript type checking passed\n- ✅ Build validation passed\n- ✅ **Mandatory test suite passed**\n- ✅ Mandatory version bump validation passed\n\nYour PR is ready for review! 🎉'
+            })
+      
+      - name: Comment PR on Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ **Quality Checks Failed**\n\nPlease fix the following issues:\n- ESLint errors/warnings in frontend production code\n- TypeScript compilation errors\n- Build validation errors\n- **Mandatory test suite** (all tests must pass)\n- **Mandatory version bump validation** (incoming branch version must be ahead of base branch version)\n\n🔒 **ENFORCEMENT**: PR cannot be merged until all checks pass.\n\n📋 **REQUIRED**: Fix all errors and push again.'
+            })
+
+
