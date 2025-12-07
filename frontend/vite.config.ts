@@ -140,9 +140,9 @@ function bundleSizeAnalyzer() {
   }
 }
 
-// Get base path for GitHub Pages deployment
+// Vercel deployment - no base path needed (root domain)
 const getBasePath = () => {
-  return process.env.NODE_ENV === 'production' ? '/split-money/' : '/';
+  return '/';
 };
 
 const basePath = getBasePath();

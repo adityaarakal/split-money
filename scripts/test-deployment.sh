@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 DEFAULT_URL="https://adityaarakal.github.io/instant-express-manager/"
 URL="${1:-$DEFAULT_URL}"
 
-echo -e "${GREEN}🔍 Testing Deployed GitHub Pages Site${NC}"
+echo -e "${GREEN}🔍 Testing Deployed Vercel Site${NC}"
 echo "URL: $URL"
 echo ""
 
@@ -26,7 +26,7 @@ if curl -s -o /dev/null -w "%{http_code}" "$URL" | grep -q "200\|301\|302"; then
   echo -e "${GREEN}✅ Site is accessible${NC}"
 else
   echo -e "${RED}❌ Site is not accessible${NC}"
-  echo "Make sure GitHub Pages is configured and deployed"
+  echo "Make sure Vercel is configured and deployed"
   exit 1
 fi
 

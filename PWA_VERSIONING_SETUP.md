@@ -187,7 +187,7 @@ Automatically:
 ### Deploy Workflow
 
 - Builds frontend PWA
-- Deploys to GitHub Pages
+- Deploys to Vercel
 - Triggers Lighthouse CI
 
 ## 🎯 Key Features

@@ -82,9 +82,10 @@
   - Changelog generation
   - Git tag creation
   - GitHub release creation
-- ✅ **deploy.yml**: GitHub Pages deployment
+- ✅ **Vercel Deployment**: Configured
   - Frontend PWA deployment
   - Automatic on main branch push
+  - Preview deployments for PRs
 - ✅ **lighthouse.yml**: Lighthouse CI
   - Performance monitoring
   - PWA validation

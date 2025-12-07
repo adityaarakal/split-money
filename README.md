@@ -219,6 +219,24 @@ If you encounter build failures:
 
 ## 🚀 Deployment
 
+### Web PWA (Vercel)
+
+The frontend PWA is automatically deployed to **Vercel** on every push to `main`:
+
+- **Production URL**: `https://split-money.vercel.app` (or custom domain)
+- **Preview Deployments**: Created for every PR
+- **Automatic HTTPS**: SSL certificates managed by Vercel
+- **Global CDN**: Fast content delivery worldwide
+
+See [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md) for detailed deployment guide.
+
+### Android App
+
+The Android app is built locally and distributed via:
+- **Local Build**: `./gradlew assembleRelease`
+- **APK**: Generated in `app/build/outputs/apk/release/`
+- **Google Play Store**: (Future) Submit APK for distribution
+
 ### Building Release APK
 
 1. Build release APK:

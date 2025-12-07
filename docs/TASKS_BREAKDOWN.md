@@ -90,6 +90,7 @@
 - IndexedDB implementation
 - Data validation system
 - Backup/restore feature
+- **MANDATORY: All UI components must be responsive** (mobile, tablet, desktop)
 
 ---
 
@@ -143,6 +144,7 @@
 - Group CRUD operations
 - Member CRUD operations
 - Group settings functionality
+- **MANDATORY: Responsive UI** (mobile, tablet, desktop)
 
 ---
 
@@ -230,6 +232,7 @@
 - Settlement interface
 - Settlement history
 - Balance analytics
+- **MANDATORY: Responsive UI** (mobile, tablet, desktop)
 
 ---
 
@@ -273,6 +276,7 @@
 - Chart visualizations
 - Report generation
 - Export functionality
+- **MANDATORY: Responsive UI** (mobile, tablet, desktop)
 
 ---
 
@@ -292,13 +296,24 @@
 - [ ] Add animations
 - [ ] Implement transitions
 - [ ] Add haptic feedback
-- [ ] Optimize for tablets
+- [ ] **MANDATORY: Implement responsive design**
+  - [ ] Create layout variants (sw600dp, sw720dp)
+  - [ ] Use ConstraintLayout for responsive layouts
+  - [ ] Test on multiple screen sizes
+  - [ ] Optimize for phones, tablets, foldables
+  - [ ] Validate responsive breakpoints
 
 #### 7.3 Web UI
 - [ ] Implement Material UI components
 - [ ] Create custom components
 - [ ] Add animations
-- [ ] Implement responsive design
+- [ ] **MANDATORY: Implement responsive design**
+  - [ ] Mobile layouts (320px - 767px)
+  - [ ] Tablet layouts (768px - 1023px)
+  - [ ] Desktop layouts (1024px+)
+  - [ ] Use Material UI breakpoints
+  - [ ] Add responsive CSS media queries
+  - [ ] Test on multiple viewports
 - [ ] Optimize for mobile
 - [ ] Add keyboard shortcuts
 
@@ -324,6 +339,8 @@
 - Theme system
 - Enhanced UI components
 - Improved UX patterns
+- **MANDATORY: Responsive design implementation** (mobile, tablet, desktop)
+- **MANDATORY: Responsive design validation** (automated checks)
 
 ---
 
@@ -367,6 +384,7 @@
 - Offline functionality
 - PWA installation support
 - Background sync
+- **MANDATORY: Responsive PWA** (mobile, tablet, desktop)
 
 ---
 
@@ -393,7 +411,13 @@
 - [ ] Write E2E test scenarios
 - [ ] Test critical user flows
 - [ ] Test cross-browser
-- [ ] Test responsive design
+- [ ] **MANDATORY: Test responsive design**
+  - [ ] Test on mobile viewport (320px, 375px, 414px)
+  - [ ] Test on tablet viewport (768px, 1024px)
+  - [ ] Test on desktop viewport (1280px, 1920px)
+  - [ ] Validate UI adapts correctly
+  - [ ] Test touch interactions on mobile
+  - [ ] Test keyboard navigation on desktop
 - [ ] Add E2E test documentation
 
 #### 9.4 Android Tests
@@ -415,10 +439,11 @@
 **Deliverables:**
 - Unit test suite
 - Integration test suite
-- E2E test suite
-- Android test suite
+- E2E test suite (including responsive design tests)
+- Android test suite (including responsive layout tests)
 - QA reports
 - Test documentation
+- **MANDATORY: Responsive design test coverage** (mobile, tablet, desktop)
 
 ---
 
@@ -441,7 +466,7 @@
 - [ ] Add in-app help
 
 #### 10.3 Deployment
-- [ ] Set up GitHub Pages
+- [ ] Set up Vercel deployment
 - [ ] Configure domain (if needed)
 - [ ] Set up CI/CD pipeline
 - [ ] Create deployment scripts
@@ -462,6 +487,7 @@
 - App store listings
 - User guides
 - Developer guides
+- **MANDATORY: Responsive design documentation** (breakpoints, testing guidelines)
 
 ---
 

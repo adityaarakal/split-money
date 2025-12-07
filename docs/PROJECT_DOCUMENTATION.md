@@ -263,6 +263,7 @@
 - All production code must pass linting
 - Type safety enforced (TypeScript/Kotlin)
 - Build must succeed before commit
+- **Responsive design MANDATORY** - All UI must work on mobile, tablet, and desktop
 - Tests must pass (TDD approach)
 - Version bump required for every PR
 
@@ -393,7 +394,12 @@
 - [ ] Implement Material Design 3 (Android)
 - [ ] Create consistent design system
 - [ ] Add dark/light theme support
-- [ ] Implement responsive design (Web)
+- [ ] **MANDATORY: Implement responsive design (Web + Android)**
+  - [ ] Mobile layouts (320px - 767px)
+  - [ ] Tablet layouts (768px - 1023px)
+  - [ ] Desktop layouts (1024px+)
+  - [ ] Test on multiple screen sizes
+  - [ ] Validate responsive breakpoints
 - [ ] Add loading states and skeletons
 - [ ] Create error handling UI
 - [ ] Add toast notifications
@@ -403,7 +409,8 @@
 - Material Design 3 implementation
 - Design system documentation
 - Theme switching functionality
-- Responsive layouts
+- **MANDATORY: Responsive layouts** (mobile, tablet, desktop)
+- **MANDATORY: Responsive design validation** (automated checks)
 - Loading and error states
 - Notification system
 - Empty state designs
@@ -453,7 +460,7 @@
 - [ ] Create user guide
 - [ ] Write developer documentation
 - [ ] Set up deployment pipeline
-- [ ] Configure GitHub Pages (Web)
+- [ ] Configure Vercel deployment (Web)
 - [ ] Prepare Google Play Store listing (Android)
 - [ ] Create release notes
 
@@ -523,7 +530,7 @@ Phase 10: Documentation & Deploy   📋 PLANNED (Week 11)
 3. **Release Process**
    - Version auto-bumps on merge
    - GitHub release created
-   - PWA deploys to GitHub Pages
+   - PWA deploys to Vercel
    - Android APK generated
 
 ---
@@ -613,7 +620,10 @@ Phase 10: Documentation & Deploy   📋 PLANNED (Week 11)
 3. **User Experience**
    - ✅ Intuitive UI/UX
    - ✅ Fast performance
-   - ✅ Responsive design
+   - ✅ **MANDATORY: Responsive design** - All UI must work perfectly on:
+     - Mobile devices (320px - 767px)
+     - Tablets (768px - 1023px)
+     - Desktop (1024px+)
    - ✅ Accessible (WCAG 2.1 AA)
 
 ### Non-Functional Requirements

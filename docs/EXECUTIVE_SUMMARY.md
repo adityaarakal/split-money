@@ -31,7 +31,7 @@
 ### 3. CI/CD Pipeline ✅
 - **PR Checks**: Comprehensive validation
 - **Version Bump**: Automatic semantic versioning
-- **Deployment**: GitHub Pages for PWA
+- **Deployment**: Vercel for PWA
 - **Lighthouse CI**: Performance monitoring
 - **Release Management**: Automated release branch
 
