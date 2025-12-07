@@ -119,19 +119,6 @@ set_version() {
     "
   fi
   
-  # Update Android build.gradle
-  if [ -f "$REPO_ROOT/app/build.gradle" ]; then
-    # Update versionName in build.gradle
-    sed -i.bak -E "s/(versionName\s*[=:]\s*['\"]?)[^'\"]*(['\"]?)/\1$new_version\2/" "$REPO_ROOT/app/build.gradle"
-    rm -f "$REPO_ROOT/app/build.gradle.bak"
-  fi
-  
-  # Update Android build.gradle.kts
-  if [ -f "$REPO_ROOT/app/build.gradle.kts" ]; then
-    # Update version in build.gradle.kts
-    sed -i.bak -E "s/(version\s*[=:]\s*['\"]?)[^'\"]*(['\"]?)/\1$new_version\2/" "$REPO_ROOT/app/build.gradle.kts"
-    rm -f "$REPO_ROOT/app/build.gradle.kts.bak"
-  fi
   
   # Update frontend package.json
   if [ -f "$REPO_ROOT/frontend/package.json" ]; then

@@ -1,7 +1,7 @@
 {
   "name": "split-money",
   "version": "1.0.1",
-  "description": "Android app clone of Splitwise - Expense splitting and management",
+  "description": "Splitwise clone - Expense splitting and management built with React PWA",
   "private": true,
   "workspaces": [
     "frontend"
@@ -37,10 +37,12 @@
     "release:protect": "bash scripts/protect-release-branch.sh"
   },
   "keywords": [
-    "android",
-    "kotlin",
+    "react",
+    "pwa",
+    "typescript",
     "splitwise",
-    "expense-splitting"
+    "expense-splitting",
+    "vite"
   ],
   "author": "",
   "license": "MIT",
