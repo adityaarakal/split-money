@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "npm run build --workspace=frontend",
+  "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
-  "devCommand": "npm run dev --workspace=frontend",
+  "devCommand": "npm run dev",
   "installCommand": "npm install --ignore-scripts",
   "framework": "vite",
   "rewrites": [
