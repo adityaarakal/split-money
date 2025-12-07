@@ -50,6 +50,9 @@ coverage/
 tmp/
 temp/
 **/tmp/
+*.tmp*
+*.bak
+*~
 
 # Enforcement lock backups (keep lock directory tracked, but ignore backups)
 .enforcement-lock/*.backup.*
