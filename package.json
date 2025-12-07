@@ -1,6 +1,6 @@
 {
   "name": "split-money",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Splitwise clone - Expense splitting and management built with React PWA",
   "private": true,
   "workspaces": [
