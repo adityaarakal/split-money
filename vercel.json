@@ -3,8 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "frontend/dist",
   "devCommand": "npm run dev",
-  "installCommand": "npm install --ignore-scripts",
-  "rootDirectory": ".",
+  "installCommand": "npm install --ignore-scripts && cd frontend && npm install",
   "framework": "vite",
   "rewrites": [
     {
