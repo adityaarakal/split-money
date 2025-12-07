@@ -52,7 +52,7 @@
 - **Simplify** expense splitting and balance tracking
 - **Provide** offline-first functionality
 - **Ensure** user privacy and data ownership
-- **Support** multiple platforms (Android + Web PWA)
+- **Support** Web PWA platform
 - **Maintain** high code quality with strict enforcement
 
 ---
@@ -105,25 +105,17 @@
 
 #### Technical Features
 - **Offline-First**: Works without internet connection
-- **Cross-Platform**: Android app + Web PWA
-- **Privacy-Focused**: All data stored locally
+- **Web PWA**: Progressive Web App with installable capabilities
+- **Privacy-Focused**: All data stored locally (IndexedDB)
 - **PWA Support**: Installable web app with offline capabilities
-- **Version Management**: Automatic versioning across platforms
+- **Version Management**: Automatic versioning
+- **Responsive Design**: Perfectly responsive across mobile, tablet, and desktop
 
 ---
 
 ## 🏗️ Approach & Architecture
 
 ### Technology Stack
-
-#### Android App
-- **Language**: Kotlin
-- **UI Framework**: Jetpack Compose (or Material Design Components)
-- **Architecture**: MVVM (Model-View-ViewModel)
-- **Database**: Room Database (SQLite)
-- **Dependency Injection**: Hilt/Dagger
-- **Async Operations**: Coroutines & Flow
-- **Build System**: Gradle
 
 #### Web PWA
 - **Framework**: React 18+ with TypeScript
@@ -135,29 +127,6 @@
 - **PWA**: VitePWA plugin with Workbox
 
 ### Architecture Patterns
-
-#### Android Architecture
-```
-┌─────────────────────────────────────┐
-│         UI Layer (Compose)          │
-│  Activities, Fragments, Composables │
-└──────────────┬──────────────────────┘
-               │
-┌──────────────▼──────────────────────┐
-│      ViewModel Layer                 │
-│  Business Logic, State Management    │
-└──────────────┬──────────────────────┘
-               │
-┌──────────────▼──────────────────────┐
-│      Repository Layer                │
-│  Data Access Abstraction             │
-└──────────────┬──────────────────────┘
-               │
-┌──────────────▼──────────────────────┐
-│      Data Layer                      │
-│  Room Database, Network (if needed)  │
-└─────────────────────────────────────┘
-```
 
 #### Web Architecture
 ```
@@ -275,7 +244,6 @@
 
 #### Setup Tasks
 - [x] Project structure setup
-- [x] Android project configuration
 - [x] Web PWA project configuration
 - [x] Git hooks and enforcement setup
 - [x] GitHub Actions workflows
@@ -283,7 +251,6 @@
 - [x] Documentation structure
 
 #### Deliverables
-- ✅ Android project with Gradle configuration
 - ✅ React PWA with Vite and TypeScript
 - ✅ Git hooks (Husky) configured
 - ✅ GitHub Actions workflows
@@ -295,25 +262,23 @@
 
 #### Tasks
 - [ ] Design data models (Group, Member, Expense, Balance)
-- [ ] Implement Room Database entities (Android)
 - [ ] Implement IndexedDB schema (Web)
-- [ ] Create data access layer (DAOs/Repositories)
+- [ ] Create data access layer (Repositories)
 - [ ] Implement data migration system
 - [ ] Add data validation logic
 - [ ] Create backup/restore functionality
 
 #### Deliverables
 - Database schema documentation
-- Room Database entities and DAOs
 - IndexedDB storage implementation
 - Repository pattern implementation
 - Data migration scripts
 - Backup/restore feature
+- **MANDATORY: All UI components must be responsive** (mobile, tablet, desktop)
 
 ### Phase 3: Core Features - Groups & Members
 
 #### Tasks
-- [ ] Create group management UI (Android)
 - [ ] Create group management UI (Web)
 - [ ] Implement group CRUD operations
 - [ ] Add member management functionality
@@ -391,10 +356,9 @@
 ### Phase 7: UI/UX Enhancement
 
 #### Tasks
-- [ ] Implement Material Design 3 (Android)
-- [ ] Create consistent design system
+- [ ] Create consistent design system (Material UI)
 - [ ] Add dark/light theme support
-- [ ] **MANDATORY: Implement responsive design (Web + Android)**
+- [ ] **MANDATORY: Implement responsive design (Web)**
   - [ ] Mobile layouts (320px - 767px)
   - [ ] Tablet layouts (768px - 1023px)
   - [ ] Desktop layouts (1024px+)
@@ -406,7 +370,7 @@
 - [ ] Implement empty states
 
 #### Deliverables
-- Material Design 3 implementation
+- Material UI design system implementation
 - Design system documentation
 - Theme switching functionality
 - **MANDATORY: Responsive layouts** (mobile, tablet, desktop)
@@ -439,7 +403,6 @@
 - [ ] Write unit tests for core logic
 - [ ] Create integration tests
 - [ ] Implement E2E tests (Playwright)
-- [ ] Add Android instrumentation tests
 - [ ] Perform accessibility testing
 - [ ] Conduct performance testing
 - [ ] Security audit
@@ -447,8 +410,7 @@
 #### Deliverables
 - Unit test suite (>80% coverage)
 - Integration test suite
-- E2E test suite
-- Android test suite
+- E2E test suite (Playwright)
 - Accessibility report
 - Performance benchmarks
 - Security audit report
@@ -461,7 +423,6 @@
 - [ ] Write developer documentation
 - [ ] Set up deployment pipeline
 - [ ] Configure Vercel deployment (Web)
-- [ ] Prepare Google Play Store listing (Android)
 - [ ] Create release notes
 
 #### Deliverables
@@ -470,7 +431,6 @@
 - Developer guide
 - Deployment documentation
 - Production deployment
-- App store listings
 - Release documentation
 
 ---
@@ -530,28 +490,11 @@ Phase 10: Documentation & Deploy   📋 PLANNED (Week 11)
 3. **Release Process**
    - Version auto-bumps on merge
    - GitHub release created
-   - PWA deploys to Vercel
-   - Android APK generated
+   - PWA deploys to Vercel automatically
 
 ---
 
 ## 🔧 Technical Specifications
-
-### Android Specifications
-
-#### Minimum Requirements
-- **Min SDK**: 24 (Android 7.0)
-- **Target SDK**: 34 (Android 14)
-- **Java Version**: 17
-- **Kotlin Version**: 1.9.20
-- **Gradle Version**: 8.1.2
-
-#### Key Dependencies
-- Room Database: 2.6.1
-- Jetpack Compose: Latest stable
-- Hilt: Latest stable
-- Coroutines: Latest stable
-- Material Design Components: Latest
 
 ### Web PWA Specifications
 
@@ -578,12 +521,6 @@ Phase 10: Documentation & Deploy   📋 PLANNED (Week 11)
 
 ### Performance Targets
 
-#### Android
-- App launch time: < 2 seconds
-- Screen transition: < 300ms
-- Database queries: < 100ms
-- Memory usage: < 150MB
-
 #### Web PWA
 - First Contentful Paint: < 1.5s
 - Time to Interactive: < 3s
@@ -595,9 +532,9 @@ Phase 10: Documentation & Deploy   📋 PLANNED (Week 11)
 - All data stored locally (no cloud sync by default)
 - No sensitive data in logs
 - Input validation on all forms
-- SQL injection prevention (Room parameterized queries)
 - XSS prevention (React auto-escaping)
 - HTTPS for PWA deployment
+- IndexedDB security best practices
 
 ---
 
@@ -613,9 +550,9 @@ Phase 10: Documentation & Deploy   📋 PLANNED (Week 11)
    - ✅ Data persists across app restarts
 
 2. **Platform Support**
-   - ✅ Android app works on Android 7.0+
    - ✅ Web PWA works on modern browsers
-   - ✅ Offline functionality works on both platforms
+   - ✅ Offline functionality works
+   - ✅ Responsive design works on mobile, tablet, and desktop
 
 3. **User Experience**
    - ✅ Intuitive UI/UX
@@ -676,9 +613,9 @@ Phase 10: Documentation & Deploy   📋 PLANNED (Week 11)
    - Risk: Breaking changes in data models
    - Mitigation: Versioned migrations, thorough testing
 
-2. **Cross-Platform Consistency**
-   - Risk: Different behavior on Android vs Web
-   - Mitigation: Shared business logic, comprehensive testing
+2. **Browser Compatibility**
+   - Risk: Different behavior across browsers
+   - Mitigation: Cross-browser testing, polyfills where needed
 
 3. **Performance Issues**
    - Risk: Slow with large datasets
@@ -714,7 +651,8 @@ Phase 10: Documentation & Deploy   📋 PLANNED (Week 11)
 1. Must work offline
 2. Must maintain user privacy (local storage)
 3. Must follow strict code quality standards
-4. Must support Android 7.0+ and modern browsers
+4. Must support modern browsers (Chrome, Firefox, Safari, Edge)
+5. Must be responsive across all screen sizes (mobile, tablet, desktop)
 
 ### Future Enhancements
 
@@ -734,9 +672,10 @@ Phase 10: Documentation & Deploy   📋 PLANNED (Week 11)
 - [Splitwise API Documentation](https://dev.splitwise.com/)
 - [Material Design Guidelines](https://material.io/design)
 - [PWA Best Practices](https://web.dev/pwa-checklist/)
-- [Room Database Guide](https://developer.android.com/training/data-storage/room)
 - [React Best Practices](https://react.dev/learn)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Vite Documentation](https://vitejs.dev/)
+- [Material UI Documentation](https://mui.com/)
 
 ---
 

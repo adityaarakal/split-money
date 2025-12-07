@@ -1,6 +1,6 @@
 # Split Money
 
-A comprehensive Android app clone of Splitwise - Expense splitting and management built with Kotlin. Split expenses with friends, track balances, and settle up easily.
+A comprehensive React Web PWA clone of Splitwise - Expense splitting and management built with React, TypeScript, and Vite. Split expenses with friends, track balances, and settle up easily.
 
 ## 🚀 Features
 
@@ -9,7 +9,7 @@ A comprehensive Android app clone of Splitwise - Expense splitting and managemen
 - 👥 **Groups**: Create groups for shared expenses (roommates, trips, events)
 - 📊 **Balance Tracking**: Track who owes whom and settle up easily
 - 💳 **Multiple Payment Methods**: Support for various payment methods
-- 📱 **Offline Support**: Works offline with local data storage
+- 📱 **Offline Support**: Works offline with local data storage (IndexedDB)
 
 ### User Experience
 - ✅ **Toast Notifications**: Real-time feedback for all operations
@@ -17,38 +17,33 @@ A comprehensive Android app clone of Splitwise - Expense splitting and managemen
 - ↩️ **Undo Functionality**: Restore deleted items within 10 minutes
 - 💾 **Data Backup/Restore**: Full backup and restore functionality
 - 🎨 **Dark/Light Theme**: System-aware theme switching
-- 📱 **Material Design**: Modern Material Design 3 UI
+- 📱 **Material Design**: Modern Material UI (MUI) components
+- 📱 **Responsive Design**: Perfectly responsive across mobile, tablet, and desktop
 
 ## 🛠️ Tech Stack
 
-### Android
-- **Kotlin** for app development
-- **Jetpack Compose** for modern UI (or Material Design Components)
-- **Room Database** for local data persistence
-- **Coroutines & Flow** for asynchronous operations
-- **Hilt/Dagger** for dependency injection
-- **Retrofit** for API calls (if backend integration)
-
-### Web (PWA)
+### Web PWA
 - **React 18+** with TypeScript
 - **Vite** for build tooling and dev server
 - **Material UI (MUI)** for UI components
 - **Zustand** for state management with persistence
 - **React Router** for navigation
 - **localforage** for IndexedDB persistence
-- **PWA Support** with Service Worker and Web App Manifest
+- **PWA Support** with Service Worker and Web App Manifest (VitePWA plugin)
+- **Playwright** for E2E testing
 
 ## 🔒 Strict Code Quality Enforcement
 
 This repository enforces strict code quality checks that **cannot be bypassed**:
 
-- ✅ **Git Hooks**: Pre-commit validation (Android Lint, Build, Tests)
+- ✅ **Git Hooks**: Pre-commit validation (ESLint, TypeScript, Build, Tests)
 - ✅ **TDD Approach**: Locked tests are DELIVERED features - fix implementation, NOT tests
 - ✅ **Git Wrapper**: Blocks `--no-verify` bypass attempts
 - ✅ **GitHub Actions**: Server-side enforcement on all PRs
 - ✅ **Branch Protection**: Requires status checks before merge
 - ✅ **Enforcement Lock System**: Checksum-based protection for enforcement files
 - ✅ **Test Lock System**: Prevents modification of locked test files
+- ✅ **Responsive Design Mandate**: All UI components must be responsive
 
 ### Protection Setup (Required)
 
@@ -73,10 +68,8 @@ source ~/.bashrc  # or ~/.zshrc (or restart terminal)
 
 ### Prerequisites
 
-- Android Studio Hedgehog (2023.1.1) or later
-- JDK 17 or later
-- Node.js 18+ and npm (for version management scripts)
-- Android SDK with API level 24+ (Android 7.0)
+- **Node.js 18+** and npm (for development and build)
+- Modern web browser (Chrome, Firefox, Safari, Edge)
 
 ### Setup
 
@@ -93,26 +86,19 @@ npm run install-protection
 source ~/.bashrc  # or ~/.zshrc (or restart terminal)
 ```
 
-3. Open the project in Android Studio:
-   - File → Open → Select the project directory
-   - Android Studio will sync Gradle files automatically
+3. Start the development server:
+```bash
+npm run dev
+```
 
-4. Run the app:
-   - Click the Run button or press `Shift+F10`
-   - Select an emulator or connected device
+4. Open your browser:
+   - Navigate to `http://localhost:5173` (or the port shown in terminal)
+   - The app will hot-reload on file changes
 
 ## 🏗️ Project Structure
 
 ```
 split-money/
-├── app/                          # Android app module
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/             # Kotlin source files
-│   │   │   ├── res/              # Resources (layouts, drawables, etc.)
-│   │   │   └── AndroidManifest.xml
-│   │   └── test/                 # Unit tests
-│   └── build.gradle              # App-level Gradle config
 ├── frontend/                     # React PWA TypeScript frontend
 │   ├── src/
 │   │   ├── components/           # Reusable React components
@@ -132,7 +118,7 @@ split-money/
 │   └── workflows/               # GitHub Actions workflows
 │       ├── pr-checks.yml         # PR quality checks
 │       ├── version-bump.yml     # Automatic version bumping
-│       └── release-branch.yml    # Release branch management
+│       └── lighthouse.yml        # Lighthouse CI
 ├── .husky/                      # Git hooks
 │   ├── pre-commit               # Pre-commit validation
 │   ├── pre-push                 # Pre-push validation
@@ -163,59 +149,81 @@ split-money/
 
 ### Running the App
 
-1. Open project in Android Studio
-2. Click Run or press `Shift+F10`
-3. Select an emulator or device
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173` (or the port shown in terminal).
 
 ### Building for Production
 
 ```bash
-./gradlew assembleRelease
+npm run build
 ```
 
-The APK will be in `app/build/outputs/apk/release/`
+The production build will be in `frontend/dist/`
+
+### Preview Production Build
+
+```bash
+cd frontend
+npm run preview
+```
 
 ### Running Tests
 
 ```bash
-./gradlew test
+# E2E tests (Playwright)
+npm run test:e2e
+
+# Run all tests
+npm run test:all
 ```
 
 ### Code Quality Checks
 
 ```bash
 # Lint check
-./gradlew ktlintCheck
+cd frontend
+npm run lint
+
+# Type check
+cd frontend
+npm run type-check
 
 # Build check
-./gradlew assembleDebug
+cd frontend
+npm run build
 ```
 
 ## 📚 Documentation
 
 ### Core Documentation
-- **[Developer Guide](docs/DEVELOPER_GUIDE.md)**: Developer documentation and architecture
-- **[Requirements](docs/REQUIREMENTS.md)**: Complete requirements specification
-- **[Architecture](docs/ARCHITECTURE.md)**: Application architecture documentation
+- **[Project Documentation](docs/PROJECT_DOCUMENTATION.md)**: Complete project overview, architecture, and specifications
+- **[Tasks Breakdown](docs/TASKS_BREAKDOWN.md)**: Detailed task list and deliverables
+- **[Responsive Design Mandate](docs/RESPONSIVE_DESIGN_MANDATE.md)**: Responsive design requirements and guidelines
 
 ### Testing & Quality Assurance
 - **[TDD Approach](docs/TDD_APPROACH.md)**: Test-Driven Development principles
 - **[Lock Policy](docs/LOCK_POLICY.md)**: File locking mechanism and policies
 - **[AI Agent TDD Rules](docs/AI_AGENT_TDD_RULES.md)**: Rules for AI agents regarding tests
 
+### Deployment
+- **[Vercel Deployment](docs/VERCEL_DEPLOYMENT.md)**: Deployment guide for Vercel
+
 ## 🐛 Troubleshooting
 
 ### Build Issues
 
 If you encounter build failures:
-- Clean and rebuild: `./gradlew clean build`
-- Invalidate caches in Android Studio: File → Invalidate Caches / Restart
-- Check JDK version: Ensure JDK 17+ is configured
+- Clean and rebuild: `cd frontend && rm -rf dist node_modules && npm install && npm run build`
+- Check Node.js version: Ensure Node.js 18+ is installed (`node --version`)
+- Clear npm cache: `npm cache clean --force`
 
-### Gradle Issues
+### Development Server Issues
 
-- Ensure Gradle wrapper is executable: `chmod +x gradlew`
-- Sync Gradle files: File → Sync Project with Gradle Files
+- Port already in use: Change port in `frontend/vite.config.ts` or kill the process using the port
+- Module not found: Run `npm install` in the root and `frontend` directory
 
 ## 🚀 Deployment
 
@@ -230,38 +238,17 @@ The frontend PWA is automatically deployed to **Vercel** on every push to `main`
 
 See [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md) for detailed deployment guide.
 
-### Android App
+### Manual Deployment
 
-The Android app is built locally and distributed via:
-- **Local Build**: `./gradlew assembleRelease`
-- **APK**: Generated in `app/build/outputs/apk/release/`
-- **Google Play Store**: (Future) Submit APK for distribution
-
-### Building Release APK
-
-1. Build release APK:
+1. Build the production bundle:
 ```bash
-./gradlew assembleRelease
+npm run build
 ```
 
-2. Sign the APK (if not already signed):
-```bash
-jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore your-keystore.jks app/build/outputs/apk/release/app-release-unsigned.apk alias_name
-```
-
-3. Zipalign the APK:
-```bash
-zipalign -v 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release.apk
-```
-
-### Google Play Store
-
-1. Build App Bundle:
-```bash
-./gradlew bundleRelease
-```
-
-2. Upload to Google Play Console
+2. Deploy `frontend/dist/` to your hosting provider:
+   - Vercel: Connect GitHub repo or use Vercel CLI
+   - Netlify: Drag and drop `frontend/dist/` folder
+   - GitHub Pages: Configure GitHub Actions workflow
 
 ## 📝 License
 
@@ -269,11 +256,12 @@ MIT
 
 ## 🤝 Contributing
 
-1. Check `docs/tasks.md` for current task status
+1. Check `docs/TASKS_BREAKDOWN.md` for current task status
 2. Follow the existing code structure and patterns
 3. Add tests for new features
 4. Update documentation as needed
 5. Ensure all pre-commit checks pass
+6. **MANDATORY**: All UI components must be responsive (mobile, tablet, desktop)
 
 ## 🎉 Recent Updates
 
@@ -281,5 +269,5 @@ MIT
 - ✅ Enforcement lock system to protect enforcement files from modification
 - ✅ Semantic versioning system with automatic version bumps
 - ✅ TDD approach with locked tests as delivered features
-
-
+- ✅ Responsive design mandate across all deliverables
+- ✅ Vercel deployment setup for automatic PWA deployment
