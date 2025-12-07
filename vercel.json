@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run build --workspace=frontend",
+  "buildCommand": "npm run build:frontend",
   "outputDirectory": "frontend/dist",
   "devCommand": "npm run dev --workspace=frontend",
   "installCommand": "npm install --ignore-scripts",
