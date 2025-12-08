@@ -36,6 +36,11 @@ import ExpenseList from '../../components/expenses/ExpenseList';
 import CategoryManagementDialog from '../../components/expenses/CategoryManagementDialog';
 import ExpenseTemplateDialog from '../../components/expenses/ExpenseTemplateDialog';
 import SaveTemplateDialog from '../../components/expenses/SaveTemplateDialog';
+import BalanceSummary from '../../components/balances/BalanceSummary';
+import SettlementDialog from '../../components/settlements/SettlementDialog';
+import SettlementHistory from '../../components/settlements/SettlementHistory';
+import { clearBalanceCache } from '../../services/balance-optimization.service';
+import type { Debt } from '../../services/balance-optimization.service';
 
 function GroupDetailPage() {
   const { groupId } = useParams<{ groupId: string }>();
@@ -57,6 +62,8 @@ function GroupDetailPage() {
   const [categoryManagementOpen, setCategoryManagementOpen] = useState(false);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [saveTemplateDialogOpen, setSaveTemplateDialogOpen] = useState(false);
+  const [settlementDialogOpen, setSettlementDialogOpen] = useState(false);
+  const [selectedDebt, setSelectedDebt] = useState<Debt | null>(null);
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
 
@@ -320,6 +327,23 @@ function GroupDetailPage() {
         </Alert>
       )}
 
+      {/* Balance Summary */}
+      {groupId && members.length > 0 && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <BalanceSummary
+              groupId={groupId}
+              members={members}
+              groupName={group?.name}
+              onSettle={(debt) => {
+                setSelectedDebt(debt);
+                setSettlementDialogOpen(true);
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -536,6 +560,37 @@ function GroupDetailPage() {
           expense={selectedExpense}
           splits={expenseSplits[selectedExpense.id] || []}
         />
+      )}
+
+      {/* Settlement Dialog */}
+      {selectedDebt && groupId && (
+        <SettlementDialog
+          open={settlementDialogOpen}
+          onClose={() => {
+            setSettlementDialogOpen(false);
+            setSelectedDebt(null);
+          }}
+          onSettle={() => {
+            clearBalanceCache(groupId);
+            // Reload expenses to refresh balances
+            loadExpenses();
+          }}
+          groupId={groupId}
+          fromMemberId={selectedDebt.fromMemberId}
+          fromMemberName={selectedDebt.fromMemberName}
+          toMemberId={selectedDebt.toMemberId}
+          toMemberName={selectedDebt.toMemberName}
+          amount={selectedDebt.amount}
+        />
+      )}
+
+      {/* Settlement History */}
+      {groupId && members.length > 0 && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <SettlementHistory groupId={groupId} groupName={group?.name} members={members} />
+          </CardContent>
+        </Card>
       )}
     </Container>
   );

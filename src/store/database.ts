@@ -17,6 +17,7 @@ export const STORES = {
   MEMBERS: 'members',
   EXPENSES: 'expenses',
   EXPENSE_SPLITS: 'expenseSplits',
+  SETTLEMENTS: 'settlements',
 } as const;
 
 // Initialize localforage instances for each store
@@ -44,6 +45,12 @@ export const expenseSplitsStore = localforage.createInstance({
   version: DB_VERSION,
 });
 
+export const settlementsStore = localforage.createInstance({
+  name: DB_NAME,
+  storeName: STORES.SETTLEMENTS,
+  version: DB_VERSION,
+});
+
 /**
  * Initialize database
  * Ensures all stores are ready and runs migrations
@@ -55,6 +62,7 @@ export async function initializeDatabase(): Promise<void> {
       membersStore.ready(),
       expensesStore.ready(),
       expenseSplitsStore.ready(),
+      settlementsStore.ready(),
     ]);
     
     // Run migrations
@@ -77,6 +85,7 @@ export async function clearDatabase(): Promise<void> {
       membersStore.clear(),
       expensesStore.clear(),
       expenseSplitsStore.clear(),
+      settlementsStore.clear(),
     ]);
   } catch (error) {
     console.error('Failed to clear database:', error);
