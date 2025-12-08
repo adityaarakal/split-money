@@ -60,3 +60,4 @@ If deployment is still failing with "Root Directory 'frontend' does not exist":
 
 **Next Step:** Check your Vercel dashboard to see the actual deployment status.
 
+

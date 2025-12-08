@@ -82,3 +82,4 @@ export class ExpenseRepository extends BaseRepository<Expense> {
 // Export singleton instance
 export const expenseRepository = new ExpenseRepository();
 
+

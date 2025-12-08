@@ -23,6 +23,7 @@ import {
   Add as AddIcon,
   Person as PersonIcon,
   Receipt as ReceiptIcon,
+  Analytics as AnalyticsIcon,
 } from '@mui/icons-material';
 import { groupRepository, memberRepository, expenseRepository, expenseSplitRepository } from '../../repositories';
 import type { Group, Member, Expense, ExpenseSplit } from '../../types';
@@ -310,6 +311,13 @@ function GroupDetailPage() {
           onClick={() => setEditDialogOpen(true)}
         >
           Edit
+        </Button>
+        <Button
+          variant="contained"
+          startIcon={<AnalyticsIcon />}
+          onClick={() => navigate(`/groups/${groupId}/analytics`)}
+        >
+          Analytics
         </Button>
         <Button
           variant="outlined"

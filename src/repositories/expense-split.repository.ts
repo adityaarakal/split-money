@@ -81,3 +81,4 @@ export class ExpenseSplitRepository extends BaseRepository<ExpenseSplit> {
 // Export singleton instance
 export const expenseSplitRepository = new ExpenseSplitRepository();
 
+
