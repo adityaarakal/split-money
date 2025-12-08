@@ -115,11 +115,11 @@ for test_file in "${LOCKED_ARRAY[@]}"; do
       for route in $HELPER_ROUTES; do
         case "$route" in
           /banks|/banks/*)
-            COVERED_PAGES+=("frontend/src/pages/Banks.tsx")
+            COVERED_PAGES+=("src/pages/Banks.tsx")
             COVERED_ROUTES+=("/banks")
             ;;
           /accounts|/accounts/*)
-            COVERED_PAGES+=("frontend/src/pages/BankAccounts.tsx")
+            COVERED_PAGES+=("src/pages/BankAccounts.tsx")
             COVERED_ROUTES+=("/accounts")
             ;;
         esac

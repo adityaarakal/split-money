@@ -36,15 +36,15 @@ git push
 
 The Vercel deployments are failing. Check:
 1. Vercel project settings - ensure `vercel.json` is being used
-2. Build command should be: `cd frontend && npm run build`
-3. Output directory should be: `frontend/dist`
+2. Build command should be: `npm run build`
+3. Output directory should be: `dist`
 4. Root directory should be: `.` (project root)
 
 ### 4. Update PR Title
 
 Update the PR title to remove "Android app" reference:
 ```
-feat: Initial project setup with React PWA frontend and Vercel deployment
+feat: Initial project setup with React PWA and Vercel deployment
 ```
 
 ## What Was Fixed
@@ -54,7 +54,7 @@ feat: Initial project setup with React PWA frontend and Vercel deployment
 - ✅ Removed Android Kotlin compilation checks
 - ✅ Removed Android build validation
 - ✅ Removed Android test checks
-- ✅ Updated to frontend E2E tests (Playwright)
+- ✅ Updated to Web PWA E2E tests (Playwright)
 - ✅ Updated step numbering (5 steps -> 4 steps)
 
 ## Expected Result

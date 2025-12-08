@@ -53,7 +53,7 @@
   - Bypass attempt detection
 
 #### Linting & Type Checking
-- ✅ ESLint configured for frontend
+- ✅ ESLint configured for Web PWA
 - ✅ TypeScript strict mode enabled
 - ✅ Kotlin configured for Android
 - ✅ ktlint ready (when Gradle wrapper is used)
@@ -69,9 +69,9 @@
 
 #### GitHub Actions Workflows
 - ✅ **pr-checks.yml**: PR quality checks
-  - Frontend linting
-  - Frontend type checking
-  - Frontend build validation
+  - Web PWA linting
+  - Web PWA type checking
+  - Web PWA build validation
   - Android linting
   - Android type checking
   - Android build validation
@@ -83,7 +83,7 @@
   - Git tag creation
   - GitHub release creation
 - ✅ **Vercel Deployment**: Configured
-  - Frontend PWA deployment
+  - Web PWA deployment
   - Automatic on main branch push
   - Preview deployments for PRs
 - ✅ **lighthouse.yml**: Lighthouse CI
@@ -99,9 +99,8 @@
 
 #### Version Files
 - ✅ Root `package.json` (source of truth)
-- ✅ `frontend/package.json` (synced)
-- ✅ `app/build.gradle` (versionName synced)
-- ✅ `frontend/public/version.json` (PWA versioning)
+- ✅ `package.json` (root)
+- ✅ `public/version.json` (PWA versioning)
 - ✅ `VERSION.txt` (fallback)
 
 #### Version Scripts

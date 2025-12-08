@@ -7,7 +7,7 @@ This document describes the PWA (Progressive Web App) and relative versioning se
 ### Features Implemented
 
 1. **VitePWA Plugin Configuration**
-   - Located in `frontend/vite.config.ts`
+   - Located in `vite.config.ts`
    - Auto-update service worker registration
    - Web App Manifest with icons and theme colors
    - Workbox configuration for caching strategies
@@ -27,7 +27,7 @@ This document describes the PWA (Progressive Web App) and relative versioning se
    - Icons: 192x192 and 512x512 PNG (to be added)
 
 4. **PWA Meta Tags**
-   - Added to `frontend/index.html`
+   - Added to `index.html`
    - Apple mobile web app support
    - Theme color and status bar style
    - Security headers (CSP, X-Frame-Options, etc.)
@@ -38,16 +38,16 @@ This document describes the PWA (Progressive Web App) and relative versioning se
 
 1. **Version Sources (Priority Order)**
    - `package.json` (root) - Primary source of truth
-   - `frontend/package.json` - Synced with root
+   - `package.json` - Root package.json
    - `app/build.gradle` - Android versionName
    - `VERSION.txt` - Fallback
 
 2. **Version Files Updated on Bump**
    - `package.json` (root)
-   - `frontend/package.json`
+   - `package.json`
    - `app/build.gradle` (versionName)
    - `app/build.gradle.kts` (if exists)
-   - `frontend/public/version.json` - For PWA relative versioning
+   - `public/version.json` - For PWA relative versioning
    - `VERSION.txt`
 
 3. **Relative Versioning Endpoints**
@@ -59,7 +59,7 @@ This document describes the PWA (Progressive Web App) and relative versioning se
    - Returns: `{ "version": "1.0.0" }`
 
    **Static Version File** (`/version.json`)
-   - Located in `frontend/public/version.json`
+   - Located in `public/version.json`
    - Updated during build process
    - Accessible at runtime via `/version.json`
    - Used for production builds
@@ -74,11 +74,11 @@ This document describes the PWA (Progressive Web App) and relative versioning se
    **Build-time Constant**
    - `__APP_VERSION__` injected via Vite `define`
    - Available in TypeScript/JavaScript code
-   - Type definitions in `frontend/src/vite-env.d.ts`
+   - Type definitions in `src/vite-env.d.ts`
 
 5. **Bundle Size Analysis**
    - Automatically analyzes build output
-   - Generates `frontend/public/bundle-info.json`
+   - Generates `public/bundle-info.json`
    - Includes chunk sizes, total size, and chunk count
    - Logged during build process
 
@@ -100,15 +100,12 @@ npm run version:set 1.2.3
 
 When version is bumped, the following files are automatically updated:
 - ✅ Root `package.json`
-- ✅ `frontend/package.json`
-- ✅ `app/build.gradle` (versionName)
-- ✅ `app/build.gradle.kts` (if exists)
-- ✅ `frontend/public/version.json`
+- ✅ `public/version.json`
 - ✅ `VERSION.txt`
 
 ## 🔧 Usage in Code
 
-### Frontend (TypeScript/React)
+### Web PWA (TypeScript/React)
 
 ```typescript
 // Access build-time version constant
@@ -132,7 +129,7 @@ val versionName = BuildConfig.VERSION_NAME
 
 ## 🚀 Build Process
 
-### Frontend Build
+### Web PWA Build
 
 1. **Pre-build**: Version is read from root `package.json`
 2. **Build Start**: `version.json` is updated in `public/` folder
@@ -144,34 +141,26 @@ val versionName = BuildConfig.VERSION_NAME
 
 The version is kept in sync across:
 - Root package.json (source of truth)
-- Frontend package.json
-- Android build.gradle
-- Frontend public/version.json
+- public/version.json
 - VERSION.txt
 
 ## 📝 Pre-commit Hooks
 
 The pre-commit hooks automatically:
 - ✅ Validate version bump (branch version > main version)
-- ✅ Run frontend linting (ESLint)
-- ✅ Run frontend type checking (TypeScript)
-- ✅ Run frontend build validation
-- ✅ Run Android linting (ktlint)
-- ✅ Run Android type checking (Kotlin)
-- ✅ Run Android build validation
-- ✅ Auto-add `frontend/public/version.json` if modified
+- ✅ Run linting (ESLint)
+- ✅ Run type checking (TypeScript)
+- ✅ Run build validation
+- ✅ Auto-add `public/version.json` if modified
 
 ## 🔄 GitHub Actions
 
 ### PR Checks Workflow
 
 Includes checks for:
-- Frontend ESLint validation
-- Frontend TypeScript compilation
-- Frontend build validation
-- Android lint validation
-- Android Kotlin compilation
-- Android build validation
+- ESLint validation
+- TypeScript compilation
+- Build validation
 - Test suite execution
 - Version bump validation
 
@@ -186,7 +175,7 @@ Automatically:
 
 ### Deploy Workflow
 
-- Builds frontend PWA
+- Builds Web PWA
 - Deploys to Vercel
 - Triggers Lighthouse CI
 
