@@ -1,6 +1,6 @@
 {
   "name": "split-money",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Splitwise clone - Expense splitting and management built with React PWA",
   "private": true,
   "type": "module",
@@ -22,7 +22,6 @@
     "install-protection": "bash scripts/install-git-protection.sh",
     "init-enforcement-lock": "bash scripts/validate-enforcement-lock.sh",
     "unlock-enforcement": "bash scripts/unlock-enforcement.sh",
-    "version": "1.0.0",
     "version:set": "bash scripts/version-utils.sh && bash -c 'set_version $1' _",
     "version:major": "bash scripts/bump-version.sh major",
     "version:minor": "bash scripts/bump-version.sh minor",
