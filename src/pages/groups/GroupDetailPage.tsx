@@ -22,21 +22,41 @@ import {
   Delete as DeleteIcon,
   Add as AddIcon,
   Person as PersonIcon,
+  Receipt as ReceiptIcon,
 } from '@mui/icons-material';
-import { groupRepository, memberRepository } from '../../repositories';
-import type { Group, Member } from '../../types';
+import { groupRepository, memberRepository, expenseRepository, expenseSplitRepository } from '../../repositories';
+import type { Group, Member, Expense, ExpenseSplit } from '../../types';
 import { generateId } from '../../utils/id';
 import MembersList from '../../components/members/MembersList';
+import EditMemberDialog from '../../components/members/EditMemberDialog';
+import CreateExpenseDialog from '../../components/expenses/CreateExpenseDialog';
+import ExpenseDetailDialog from '../../components/expenses/ExpenseDetailDialog';
+import EditExpenseDialog from '../../components/expenses/EditExpenseDialog';
+import ExpenseList from '../../components/expenses/ExpenseList';
+import CategoryManagementDialog from '../../components/expenses/CategoryManagementDialog';
+import ExpenseTemplateDialog from '../../components/expenses/ExpenseTemplateDialog';
+import SaveTemplateDialog from '../../components/expenses/SaveTemplateDialog';
 
 function GroupDetailPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [expenseSplits, setExpenseSplits] = useState<Record<string, ExpenseSplit[]>>({});
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [expenseDetailOpen, setExpenseDetailOpen] = useState(false);
+  const [editExpenseDialogOpen, setEditExpenseDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
+  const [editMemberDialogOpen, setEditMemberDialogOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [addExpenseDialogOpen, setAddExpenseDialogOpen] = useState(false);
+  const [categoryManagementOpen, setCategoryManagementOpen] = useState(false);
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [saveTemplateDialogOpen, setSaveTemplateDialogOpen] = useState(false);
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
 
@@ -44,6 +64,7 @@ function GroupDetailPage() {
     if (groupId) {
       loadGroup();
       loadMembers();
+      loadExpenses();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId]);
@@ -75,6 +96,115 @@ function GroupDetailPage() {
       setMembers(groupMembers);
     } catch (err) {
       console.error('Failed to load members:', err);
+    }
+  };
+
+  const loadExpenses = async () => {
+    if (!groupId) return;
+    try {
+      const groupExpenses = await expenseRepository.getByGroupId(groupId);
+      setExpenses(groupExpenses);
+      
+      // Load splits for all expenses
+      const splitsMap: Record<string, ExpenseSplit[]> = {};
+      await Promise.all(
+        groupExpenses.map(async (expense) => {
+          const splits = await expenseSplitRepository.getByExpenseId(expense.id);
+          splitsMap[expense.id] = splits;
+        })
+      );
+      setExpenseSplits(splitsMap);
+    } catch (err) {
+      console.error('Failed to load expenses:', err);
+    }
+  };
+
+  const handleCreateExpense = async (expense: Expense, splits: ExpenseSplit[]) => {
+    await expenseRepository.create(expense);
+    await Promise.all(splits.map((split) => expenseSplitRepository.create(split)));
+    await loadExpenses();
+  };
+
+  const handleUpdateExpense = async (expense: Expense, splits: ExpenseSplit[]) => {
+    // Delete old splits
+    const oldSplits = expenseSplits[expense.id] || [];
+    await Promise.all(oldSplits.map((split) => expenseSplitRepository.delete(split.id)));
+    
+    // Update expense
+    await expenseRepository.update(expense.id, expense);
+    
+    // Create new splits
+    await Promise.all(splits.map((split) => expenseSplitRepository.create(split)));
+    
+    await loadExpenses();
+    setEditExpenseDialogOpen(false);
+    setExpenseDetailOpen(false);
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    try {
+      // Delete splits first
+      const splits = expenseSplits[expenseId] || [];
+      await Promise.all(splits.map((split) => expenseSplitRepository.delete(split.id)));
+      
+      // Delete expense
+      await expenseRepository.delete(expenseId);
+      await loadExpenses();
+      setExpenseDetailOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete expense');
+    }
+  };
+
+  const handleDuplicateExpense = async (expense: Expense) => {
+    try {
+      const newExpense: Expense = {
+        ...expense,
+        id: generateId(),
+        description: `${expense.description} (Copy)`,
+        createdAt: new Date(),
+      };
+      
+      const oldSplits = expenseSplits[expense.id] || [];
+      const newSplits: ExpenseSplit[] = oldSplits.map((split) => ({
+        ...split,
+        id: `${newExpense.id}-${split.memberId}`,
+        expenseId: newExpense.id,
+      }));
+      
+      await handleCreateExpense(newExpense, newSplits);
+      setExpenseDetailOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to duplicate expense');
+    }
+  };
+
+  const handleExpenseClick = (expense: Expense) => {
+    setSelectedExpense(expense);
+    setExpenseDetailOpen(true);
+  };
+
+  const handleExpenseEdit = (expense: Expense) => {
+    setSelectedExpense(expense);
+    setExpenseDetailOpen(false);
+    setEditExpenseDialogOpen(true);
+  };
+
+  const handleArchiveExpense = async (expense: Expense) => {
+    try {
+      await expenseRepository.update(expense.id, { settled: true });
+      await loadExpenses();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to archive expense');
+    }
+  };
+
+  const handleUnarchiveExpense = async (expense: Expense) => {
+    try {
+      await expenseRepository.update(expense.id, { settled: false });
+      await loadExpenses();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to unarchive expense');
     }
   };
 
@@ -211,7 +341,62 @@ function GroupDetailPage() {
               await memberRepository.delete(memberId);
               await loadMembers();
             }}
+            onMemberEdit={(member) => {
+              setSelectedMember(member);
+              setEditMemberDialogOpen(true);
+            }}
           />
+        </CardContent>
+      </Card>
+
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6" component="h2">
+              <ReceiptIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+              Expenses ({expenses.length})
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setAddExpenseDialogOpen(true)}
+              disabled={members.length === 0}
+            >
+              Add Expense
+            </Button>
+          </Box>
+          {expenses.length === 0 ? (
+            <Box
+              textAlign="center"
+              py={4}
+              sx={{
+                border: '2px dashed',
+                borderColor: 'divider',
+                borderRadius: 2,
+              }}
+            >
+              <ReceiptIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+              <Typography variant="body1" color="text.secondary">
+                No expenses yet
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {members.length === 0
+                  ? 'Add members first to create expenses'
+                  : 'Create your first expense to start tracking'}
+              </Typography>
+            </Box>
+          ) : (
+            <ExpenseList
+              expenses={expenses}
+              members={members}
+              onExpenseClick={handleExpenseClick}
+              onExpenseEdit={handleExpenseEdit}
+              onExpenseDelete={(expense) => handleDeleteExpense(expense.id)}
+              onExpenseDuplicate={handleDuplicateExpense}
+              onExpenseArchive={handleArchiveExpense}
+              onExpenseUnarchive={handleUnarchiveExpense}
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -259,6 +444,99 @@ function GroupDetailPage() {
         onClose={() => setAddMemberDialogOpen(false)}
         onAdd={handleAddMember}
       />
+
+      {/* Edit Member Dialog */}
+      {selectedMember && (
+        <EditMemberDialog
+          open={editMemberDialogOpen}
+          onClose={() => {
+            setEditMemberDialogOpen(false);
+            setSelectedMember(null);
+          }}
+          onUpdate={async (memberId, updates) => {
+            await memberRepository.update(memberId, updates);
+            await loadMembers();
+          }}
+          member={selectedMember}
+        />
+      )}
+
+      {/* Add Expense Dialog */}
+      {groupId && (
+        <CreateExpenseDialog
+          open={addExpenseDialogOpen}
+          onClose={() => setAddExpenseDialogOpen(false)}
+          onCreate={handleCreateExpense}
+          groupId={groupId}
+          members={members}
+        />
+      )}
+
+      {/* Expense Detail Dialog */}
+      {selectedExpense && (
+        <ExpenseDetailDialog
+          open={expenseDetailOpen}
+          onClose={() => {
+            setExpenseDetailOpen(false);
+            setSelectedExpense(null);
+          }}
+          expense={selectedExpense}
+          splits={expenseSplits[selectedExpense.id] || []}
+          members={members}
+          onEdit={() => handleExpenseEdit(selectedExpense)}
+          onDelete={() => handleDeleteExpense(selectedExpense.id)}
+          onDuplicate={() => handleDuplicateExpense(selectedExpense)}
+          onSaveAsTemplate={() => {
+            setExpenseDetailOpen(false);
+            setSaveTemplateDialogOpen(true);
+          }}
+        />
+      )}
+
+      {/* Edit Expense Dialog */}
+      {selectedExpense && (
+        <EditExpenseDialog
+          open={editExpenseDialogOpen}
+          onClose={() => {
+            setEditExpenseDialogOpen(false);
+            setSelectedExpense(null);
+          }}
+          onUpdate={handleUpdateExpense}
+          expense={selectedExpense}
+          existingSplits={expenseSplits[selectedExpense.id] || []}
+          members={members}
+        />
+      )}
+
+      {/* Category Management Dialog */}
+      <CategoryManagementDialog
+        open={categoryManagementOpen}
+        onClose={() => setCategoryManagementOpen(false)}
+      />
+
+      {/* Expense Template Dialog */}
+      {groupId && (
+        <ExpenseTemplateDialog
+          open={templateDialogOpen}
+          onClose={() => setTemplateDialogOpen(false)}
+          onUseTemplate={handleCreateExpense}
+          groupId={groupId}
+          members={members}
+        />
+      )}
+
+      {/* Save Template Dialog */}
+      {selectedExpense && (
+        <SaveTemplateDialog
+          open={saveTemplateDialogOpen}
+          onClose={() => {
+            setSaveTemplateDialogOpen(false);
+            setSelectedExpense(null);
+          }}
+          expense={selectedExpense}
+          splits={expenseSplits[selectedExpense.id] || []}
+        />
+      )}
     </Container>
   );
 }
