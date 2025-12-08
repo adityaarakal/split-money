@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import GroupsPage from './pages/groups/GroupsPage';
 import GroupDetailPage from './pages/groups/GroupDetailPage';
+import GroupAnalyticsPage from './pages/analytics/GroupAnalyticsPage';
 import './index.css';
 
 const theme = createTheme({
@@ -46,6 +47,7 @@ function App() {
           <Route path="/" element={<Navigate to="/groups" replace />} />
           <Route path="/groups" element={<GroupsPage />} />
           <Route path="/groups/:groupId" element={<GroupDetailPage />} />
+          <Route path="/groups/:groupId/analytics" element={<GroupAnalyticsPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

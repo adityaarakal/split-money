@@ -287,3 +287,4 @@ function CategoryManagementDialog({ open, onClose }: CategoryManagementDialogPro
 
 export default CategoryManagementDialog;
 
+

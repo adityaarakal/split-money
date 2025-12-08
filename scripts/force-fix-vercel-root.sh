@@ -92,3 +92,4 @@ echo "$UPDATE_RESPONSE" | jq '{name: .name, rootDirectory: .rootDirectory}' 2>/d
 echo ""
 echo -e "${GREEN}✅ Done! Vercel will automatically redeploy.${NC}"
 
+

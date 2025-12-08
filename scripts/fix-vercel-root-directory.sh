@@ -99,3 +99,4 @@ echo -e "${GREEN}✅ Script complete${NC}"
 echo ""
 echo -e "${BLUE}Next: Update Root Directory in Vercel dashboard (see steps above)${NC}"
 
+

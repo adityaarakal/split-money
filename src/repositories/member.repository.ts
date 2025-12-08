@@ -63,3 +63,4 @@ export class MemberRepository extends BaseRepository<Member> {
 // Export singleton instance
 export const memberRepository = new MemberRepository();
 
+
