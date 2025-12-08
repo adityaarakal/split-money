@@ -164,23 +164,20 @@ echo ""
 echo "📋 Step 2/6: Linting Validation"
 echo "Running lint validation (excluding test files)..."
 
-# Frontend linting (if frontend exists)
-if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
-  echo "Running ESLint validation for frontend..."
-  cd frontend
+# Linting (if package.json exists)
+if [ -f "package.json" ]; then
+  echo "Running ESLint validation..."
   # Run lint on production code only (exclude test files and __tests__ directories)
   npx eslint 'src/**/*.{ts,tsx}' --ignore-pattern '**/__tests__/**' --ignore-pattern '**/*.test.ts' --ignore-pattern '**/*.test.tsx' --report-unused-disable-directives --max-warnings 3
   if [ $? -ne 0 ]; then
-    echo "❌ CRITICAL: ESLint errors or warnings found in frontend production code."
+    echo "❌ CRITICAL: ESLint errors or warnings found in production code."
     echo "❌ ALL production code errors must be fixed before commit."
     echo "🔒 ENFORCEMENT: Commit blocked - Fix production code errors first"
-    echo "📋 REQUIRED: Run 'cd frontend && npm run lint' and fix ALL production code errors/warnings"
+    echo "📋 REQUIRED: Run 'npm run lint' and fix ALL production code errors/warnings"
     echo "ℹ️  Note: Test file errors are acceptable and excluded from this check"
-    cd ..
     exit 1
   fi
-  cd ..
-  echo "✅ Frontend linting validation passed!"
+  echo "✅ Linting validation passed!"
 fi
 
 # Android linting (if Android project exists)
@@ -212,21 +209,18 @@ echo ""
 # Modifying existing type checking logic is FORBIDDEN (enforced by lock)
 echo "📋 Step 3/6: Type Checking"
 
-# Frontend TypeScript checking
-if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
-  echo "Running TypeScript compilation check for frontend..."
-  cd frontend
+# TypeScript checking
+if [ -f "package.json" ]; then
+  echo "Running TypeScript compilation check..."
   npx tsc --noEmit
   if [ $? -ne 0 ]; then
     echo "❌ CRITICAL: TypeScript compilation errors found."
     echo "❌ ALL TypeScript errors must be fixed before commit."
     echo "🔒 ENFORCEMENT: Commit blocked - Fix TypeScript errors first"
     echo "📋 REQUIRED: Fix ALL TypeScript compilation errors"
-    cd ..
     exit 1
   fi
-  cd ..
-  echo "✅ Frontend type checking passed!"
+  echo "✅ Type checking passed!"
 fi
 
 # Android Kotlin checking
@@ -253,21 +247,18 @@ echo ""
 # Modifying existing build validation is FORBIDDEN (enforced by lock)
 echo "📋 Step 4/6: Build Validation"
 
-# Frontend build validation
-if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
-  echo "Running frontend build validation..."
-  cd frontend
+# Build validation
+if [ -f "package.json" ]; then
+  echo "Running build validation..."
   npm run build
   if [ $? -ne 0 ]; then
-    echo "❌ CRITICAL: Frontend build validation failed."
+    echo "❌ CRITICAL: Build validation failed."
     echo "❌ Production build must succeed - no build errors allowed"
     echo "🔒 ENFORCEMENT: Commit blocked - Fix build errors first"
-    echo "📋 REQUIRED: Run 'cd frontend && npm run build' and fix ALL build errors"
-    cd ..
+    echo "📋 REQUIRED: Run 'npm run build' and fix ALL build errors"
     exit 1
   fi
-  cd ..
-  echo "✅ Frontend build validation passed!"
+  echo "✅ Build validation passed!"
 fi
 
 # Android build validation
@@ -436,7 +427,7 @@ echo "📋 Auto-adding generated/modified files..."
 GENERATED_FILES=(
   ".enforcement-lock/checksums.txt"
   "VERSION.txt"
-  "frontend/public/version.json"
+  "public/version.json"
 )
 
 FILES_ADDED=0

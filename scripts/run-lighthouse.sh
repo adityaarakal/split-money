@@ -33,7 +33,6 @@ if [ "$URL" == "$DEFAULT_URL" ]; then
     echo ""
     
     # Start preview server in background
-    cd frontend
     npm run build
     npm run preview &
     PREVIEW_PID=$!

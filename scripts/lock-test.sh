@@ -10,7 +10,7 @@
 #   bash scripts/lock-test.sh <test-file-path>
 #
 # Example:
-#   bash scripts/lock-test.sh frontend/e2e/modules/dashboard.spec.ts
+#   bash scripts/lock-test.sh e2e/modules/dashboard.spec.ts
 # ============================================================================
 
 set -e
@@ -37,7 +37,7 @@ fi
 
 # Check if file is in modules directory
 if ! echo "$TEST_FILE" | grep -q "e2e/modules/"; then
-  echo -e "${RED}Error: Test file must be in frontend/e2e/modules/ directory${NC}"
+  echo -e "${RED}Error: Test file must be in e2e/modules/ directory${NC}"
   exit 1
 fi
 

@@ -62,24 +62,22 @@ echo ""
 run_check "Node.js version (18+)" "node --version | grep -q 'v1[89]' || node --version | grep -q 'v2[0-9]'"
 
 # 2. Check dependencies are installed
-run_check "Root dependencies installed" "[ -d 'node_modules' ]"
-run_check "Frontend dependencies installed" "[ -d 'frontend/node_modules' ]"
+run_check "Dependencies installed" "[ -d 'node_modules' ]"
 
 # 3. TypeScript compilation
 echo -e "${BLUE}▶ Checking: TypeScript Compilation${NC}"
-if cd frontend && npm run build -- --mode test > /dev/null 2>&1; then
+if npm run build -- --mode test > /dev/null 2>&1; then
     echo -e "${GREEN}✅ TypeScript Compilation - PASSED${NC}"
     ((PASSED++))
 else
     echo -e "${RED}❌ TypeScript Compilation - FAILED${NC}"
     ((FAILED++))
 fi
-cd ..
 echo ""
 
 # 4. Production build
 echo -e "${BLUE}▶ Checking: Production Build${NC}"
-if cd frontend && npm run build > /dev/null 2>&1; then
+if npm run build > /dev/null 2>&1; then
     echo -e "${GREEN}✅ Production Build - PASSED${NC}"
     ((PASSED++))
     
@@ -113,7 +111,6 @@ else
     echo -e "${RED}❌ Production Build - FAILED${NC}"
     ((FAILED++))
 fi
-cd ..
 echo ""
 
 # 5. Check GitHub Actions workflows
@@ -122,10 +119,9 @@ run_check "Lighthouse workflow exists" "[ -f '.github/workflows/lighthouse.yml' 
 run_check "PR checks workflow exists" "[ -f '.github/workflows/pr-checks.yml' ]"
 
 # 6. Check configuration files
-run_check "Vite config exists" "[ -f 'frontend/vite.config.ts' ]"
-run_check "TypeScript config exists" "[ -f 'frontend/tsconfig.json' ]"
+run_check "Vite config exists" "[ -f 'vite.config.ts' ]"
+run_check "TypeScript config exists" "[ -f 'tsconfig.json' ]"
 run_check "Package.json exists" "[ -f 'package.json' ]"
-run_check "Frontend package.json exists" "[ -f 'frontend/package.json' ]"
 
 # 7. Check documentation
 run_check "README exists" "[ -f 'README.md' ]"
@@ -134,15 +130,15 @@ run_check "Deployment checklist exists" "[ -f 'docs/DEPLOYMENT_CHECKLIST.md' ]"
 # 8. Check version consistency
 echo -e "${BLUE}▶ Checking: Version Consistency${NC}"
 ROOT_VERSION=$(node -p "require('./package.json').version")
-FRONTEND_VERSION=$(node -p "require('./frontend/package.json').version")
+VERSION_FILE=$(cat VERSION.txt 2>/dev/null || echo "")
 
-if [ "$ROOT_VERSION" = "$FRONTEND_VERSION" ]; then
+if [ -n "$VERSION_FILE" ] && [ "$ROOT_VERSION" = "$VERSION_FILE" ]; then
     echo -e "${GREEN}✅ Version Consistency - PASSED (v${ROOT_VERSION})${NC}"
     ((PASSED++))
 else
-    echo -e "${RED}❌ Version Consistency - FAILED${NC}"
-    echo -e "${RED}   Root: ${ROOT_VERSION}, Frontend: ${FRONTEND_VERSION}${NC}"
-    ((FAILED++))
+    echo -e "${YELLOW}⚠️  Version Consistency - WARNING${NC}"
+    echo -e "${YELLOW}   Package.json: ${ROOT_VERSION}, VERSION.txt: ${VERSION_FILE}${NC}"
+    ((WARNINGS++))
 fi
 echo ""
 
@@ -150,7 +146,7 @@ echo ""
 echo -e "${BLUE}▶ Checking: Common Issues${NC}"
 
 # Check for console.log statements (should be minimal in production)
-CONSOLE_LOGS=$(grep -r "console\.log" frontend/src --exclude-dir=node_modules --exclude-dir=dist 2>/dev/null | wc -l | tr -d ' ')
+CONSOLE_LOGS=$(grep -r "console\.log" src --exclude-dir=node_modules --exclude-dir=dist 2>/dev/null | wc -l | tr -d ' ')
 if [ "$CONSOLE_LOGS" -lt 50 ]; then
     echo -e "${GREEN}✅ Console.log statements - ACCEPTABLE (${CONSOLE_LOGS} found)${NC}"
     ((PASSED++))
@@ -160,8 +156,8 @@ else
 fi
 
 # Check bundle size
-if [ -f "frontend/dist/bundle-info.json" ]; then
-    BUNDLE_SIZE=$(node -p "require('./frontend/dist/bundle-info.json').totalSize" 2>/dev/null || echo "0")
+if [ -f "dist/bundle-info.json" ]; then
+    BUNDLE_SIZE=$(node -p "require('./dist/bundle-info.json').totalSize" 2>/dev/null || echo "0")
     if [ "$BUNDLE_SIZE" != "0" ]; then
         echo -e "${GREEN}✅ Bundle size info available${NC}"
         ((PASSED++))

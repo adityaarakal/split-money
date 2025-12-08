@@ -4,8 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 import { readFileSync, writeFileSync, statSync, readdirSync } from 'fs'
 
-// Read version from root package.json (source of truth for version)
-const packageJson = JSON.parse(readFileSync('../package.json', 'utf-8'))
+// Read version from package.json (source of truth for version)
+const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'))
 const version = packageJson.version
 
 // Vite plugin to inject version into HTML meta tag and update version.json
@@ -23,7 +23,7 @@ function injectVersionMeta() {
       server.middlewares.use('/api/version', (req, res, next) => {
         try {
           // Always read fresh from package.json (no caching)
-          const packageJsonPath = path.resolve(__dirname, '../package.json');
+          const packageJsonPath = path.resolve(__dirname, './package.json');
           const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
           
           // Set headers to prevent any caching

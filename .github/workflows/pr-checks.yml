@@ -27,12 +27,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          # Install root workspace dependencies
           npm install
-          # Install frontend workspace dependencies explicitly to ensure optional deps
-          cd frontend
-          npm install
-          cd ..
       
       # ============================================================================
       # STEP 1: LINTING VALIDATION
@@ -44,21 +39,18 @@ jobs:
           echo ""
           echo "📋 Step 1/4: Linting Validation"
           
-          # Frontend linting
-          if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
-            echo "Running ESLint validation for frontend (excluding test files)..."
-            cd frontend
+          # Linting
+          if [ -f "package.json" ]; then
+            echo "Running ESLint validation (excluding test files)..."
             npx eslint 'src/**/*.{ts,tsx}' --ignore-pattern '**/__tests__/**' --ignore-pattern '**/*.test.ts' --ignore-pattern '**/*.test.tsx' --report-unused-disable-directives --max-warnings 3
             if [ $? -ne 0 ]; then
-              echo "❌ CRITICAL: ESLint errors or warnings found in frontend production code."
+              echo "❌ CRITICAL: ESLint errors or warnings found in production code."
               echo "❌ ALL production code errors must be fixed before merge."
               echo "🔒 ENFORCEMENT: PR blocked - Fix production code errors first"
-              echo "📋 REQUIRED: Run 'cd frontend && npm run lint' and fix ALL production code errors/warnings"
-              cd ..
+              echo "📋 REQUIRED: Run 'npm run lint' and fix ALL production code errors/warnings"
               exit 1
             fi
-            cd ..
-            echo "✅ Frontend linting validation passed!"
+            echo "✅ Linting validation passed!"
           fi
           
           echo "✅ Production code linting validation passed!"
@@ -71,21 +63,18 @@ jobs:
           echo ""
           echo "📋 Step 2/4: Type Checking"
           
-          # Frontend TypeScript checking
-          if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
-            echo "Running TypeScript compilation check for frontend..."
-            cd frontend
+          # TypeScript checking
+          if [ -f "package.json" ]; then
+            echo "Running TypeScript compilation check..."
             npx tsc --noEmit
             if [ $? -ne 0 ]; then
               echo "❌ CRITICAL: TypeScript compilation errors found."
               echo "❌ ALL TypeScript errors must be fixed before merge."
               echo "🔒 ENFORCEMENT: PR blocked - Fix TypeScript errors first"
               echo "📋 REQUIRED: Fix ALL TypeScript compilation errors"
-              cd ..
               exit 1
             fi
-            cd ..
-            echo "✅ Frontend type checking passed!"
+            echo "✅ Type checking passed!"
           fi
           
           echo "✅ Type checking passed!"
@@ -98,21 +87,18 @@ jobs:
           echo ""
           echo "📋 Step 3/4: Build Validation"
           
-          # Frontend build validation
-          if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
-            echo "Running frontend build validation..."
-            cd frontend
+          # Build validation
+          if [ -f "package.json" ]; then
+            echo "Running build validation..."
             npm run build
             if [ $? -ne 0 ]; then
-              echo "❌ CRITICAL: Frontend build validation failed."
+              echo "❌ CRITICAL: Build validation failed."
               echo "❌ Production build must succeed - no build errors allowed"
               echo "🔒 ENFORCEMENT: PR blocked - Fix build errors first"
-              echo "📋 REQUIRED: Run 'cd frontend && npm run build' and fix ALL build errors"
-              cd ..
+              echo "📋 REQUIRED: Run 'npm run build' and fix ALL build errors"
               exit 1
             fi
-            cd ..
-            echo "✅ Frontend build validation passed!"
+            echo "✅ Build validation passed!"
           fi
           
           echo "✅ Build validation passed!"
@@ -131,16 +117,14 @@ jobs:
           echo "📋 REQUIRED: All tests must pass before PR can be merged"
           echo ""
           
-          # Frontend tests (Playwright E2E)
-          if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
-            echo "Running frontend E2E tests..."
-            cd frontend
+          # E2E tests (Playwright)
+          if [ -f "package.json" ]; then
+            echo "Running E2E tests..."
             npx playwright install --with-deps chromium || true
             npm run test:e2e || echo "⚠️  E2E tests not configured yet - skipping"
-            cd ..
-            echo "✅ Frontend test suite passed!"
+            echo "✅ Test suite passed!"
           else
-            echo "⚠️  Frontend directory not found - skipping test check"
+            echo "⚠️  package.json not found - skipping test check"
           fi
       
       # ============================================================================
@@ -189,7 +173,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '✅ **All Quality Checks Passed!**\n\n- ✅ ESLint validation passed (frontend production code only)\n- ✅ TypeScript type checking passed\n- ✅ Build validation passed\n- ✅ Frontend E2E test suite passed\n- ✅ Mandatory version bump validation passed\n\nYour PR is ready for review! 🎉'
+              body: '✅ **All Quality Checks Passed!**\n\n- ✅ ESLint validation passed (production code only)\n- ✅ TypeScript type checking passed\n- ✅ Build validation passed\n- ✅ E2E test suite passed\n- ✅ Mandatory version bump validation passed\n\nYour PR is ready for review! 🎉'
             })
       
       - name: Comment PR on Failure
@@ -201,7 +185,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '❌ **Quality Checks Failed**\n\nPlease fix the following issues:\n- ESLint errors/warnings in frontend production code\n- TypeScript compilation errors\n- Build validation errors\n- Frontend E2E test suite (all tests must pass)\n- **Mandatory version bump validation** (incoming branch version must be ahead of base branch version)\n\n🔒 **ENFORCEMENT**: PR cannot be merged until all checks pass.\n\n📋 **REQUIRED**: Fix all errors and push again.'
+              body: '❌ **Quality Checks Failed**\n\nPlease fix the following issues:\n- ESLint errors/warnings in production code\n- TypeScript compilation errors\n- Build validation errors\n- E2E test suite (all tests must pass)\n- **Mandatory version bump validation** (incoming branch version must be ahead of base branch version)\n\n🔒 **ENFORCEMENT**: PR cannot be merged until all checks pass.\n\n📋 **REQUIRED**: Fix all errors and push again.'
             })
 
 

@@ -10,18 +10,10 @@ set -e
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSION_FILE="$REPO_ROOT/VERSION.txt"
 
-# Get current version from package.json or build.gradle
+# Get current version from package.json
 get_current_version() {
   if [ -f "$REPO_ROOT/package.json" ]; then
     node -p "require('$REPO_ROOT/package.json').version"
-  elif [ -f "$REPO_ROOT/frontend/package.json" ]; then
-    node -p "require('$REPO_ROOT/frontend/package.json').version"
-  elif [ -f "$REPO_ROOT/app/build.gradle" ]; then
-    # Extract versionName from build.gradle (supports both quoted and unquoted)
-    grep -E "versionName\s*[=:]" "$REPO_ROOT/app/build.gradle" | sed -E "s/.*versionName\s*[=:]\s*['\"]?([^'\"]+)['\"]?.*/\1/" | head -1
-  elif [ -f "$REPO_ROOT/app/build.gradle.kts" ]; then
-    # Extract version from build.gradle.kts
-    grep -E "version\s*[=:]" "$REPO_ROOT/app/build.gradle.kts" | sed -E "s/.*version\s*[=:]\s*['\"]?([^'\"]+)['\"]?.*/\1/" | head -1
   elif [ -f "$VERSION_FILE" ]; then
     cat "$VERSION_FILE"
   else
@@ -119,23 +111,12 @@ set_version() {
     "
   fi
   
-  
-  # Update frontend package.json
-  if [ -f "$REPO_ROOT/frontend/package.json" ]; then
-    node -e "
-      const fs = require('fs');
-      const pkg = JSON.parse(fs.readFileSync('$REPO_ROOT/frontend/package.json', 'utf8'));
-      pkg.version = '$new_version';
-      fs.writeFileSync('$REPO_ROOT/frontend/package.json', JSON.stringify(pkg, null, 2) + '\n');
-    "
-  fi
-  
-  # Update frontend/public/version.json (for PWA relative versioning)
-  if [ -f "$REPO_ROOT/frontend/public/version.json" ]; then
+  # Update public/version.json (for PWA relative versioning)
+  if [ -f "$REPO_ROOT/public/version.json" ]; then
     node -e "
       const fs = require('fs');
       const versionData = { version: '$new_version' };
-      fs.writeFileSync('$REPO_ROOT/frontend/public/version.json', JSON.stringify(versionData, null, 2) + '\n');
+      fs.writeFileSync('$REPO_ROOT/public/version.json', JSON.stringify(versionData, null, 2) + '\n');
     "
   fi
   

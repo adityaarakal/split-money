@@ -26,10 +26,10 @@ The Split Money PWA is deployed to **Vercel** for fast, global CDN distribution.
 
 2. **Configure Project**
    - **Framework Preset**: Vite
-   - **Root Directory**: Leave empty (or set to `frontend` if needed)
-   - **Build Command**: `cd frontend && npm run build`
-   - **Output Directory**: `frontend/dist`
-   - **Install Command**: `npm install && cd frontend && npm install`
+   - **Root Directory**: Leave empty (root of repository)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+   - **Install Command**: `npm install --ignore-scripts`
 
 3. **Environment Variables** (if needed)
    - Add any required environment variables
@@ -68,10 +68,10 @@ The project includes a `vercel.json` configuration file:
 ```json
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/dist",
-  "devCommand": "cd frontend && npm run dev",
-  "installCommand": "npm install && cd frontend && npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install --ignore-scripts",
   "framework": "vite",
   "rewrites": [
     {
@@ -84,8 +84,8 @@ The project includes a `vercel.json` configuration file:
 
 ### Key Settings
 
-- **Build Command**: Builds the frontend PWA
-- **Output Directory**: `frontend/dist` (Vite build output)
+- **Build Command**: Builds the PWA
+- **Output Directory**: `dist` (Vite build output)
 - **Rewrites**: SPA routing support (all routes → index.html)
 - **Headers**: Service worker and asset caching configuration
 
@@ -179,7 +179,6 @@ Vercel automatically deploys on:
 
 2. **Local Build Test**
    ```bash
-   cd frontend
    npm run build
    ```
 

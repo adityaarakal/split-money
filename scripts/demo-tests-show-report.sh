@@ -12,8 +12,6 @@ cd "$REPO_ROOT"
 echo "📊 Opening last HTML test report..."
 echo ""
 
-cd frontend
-
 # Show the last HTML report
 npx playwright show-report
 

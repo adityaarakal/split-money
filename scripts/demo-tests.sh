@@ -29,10 +29,8 @@ echo ""
 if ! curl -s http://localhost:7001 > /dev/null 2>&1; then
   echo -e "${YELLOW}⚠️  Dev server not running on port 7001${NC}"
   echo -e "${YELLOW}   Starting dev server in background...${NC}"
-  cd frontend
   npm run dev > /dev/null 2>&1 &
   DEV_SERVER_PID=$!
-  cd ..
   
   # Wait for server to start
   echo -e "${BLUE}⏳ Waiting for dev server to start...${NC}"

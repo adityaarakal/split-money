@@ -19,6 +19,5 @@ echo "   • Forms being filled"
 echo "   • Buttons being clicked"
 echo ""
 
-cd frontend
 npx playwright test --project=chromium --headed
 

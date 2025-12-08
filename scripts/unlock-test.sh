@@ -13,7 +13,7 @@
 #   bash scripts/unlock-test.sh <test-file-path>
 #
 # Example:
-#   bash scripts/unlock-test.sh frontend/e2e/modules/banks.spec.ts
+#   bash scripts/unlock-test.sh e2e/modules/banks.spec.ts
 #
 # ⚠️  WARNING: Once unlocked, test files can be modified by AI agents
 # ⚠️  Remember to lock again after finalizing changes
@@ -42,7 +42,7 @@ if [ ! -f "$TEST_FILE" ]; then
 fi
 
 # Get relative path for lock file
-RELATIVE_PATH=$(echo "$TEST_FILE" | sed 's|^frontend/||')
+RELATIVE_PATH="$TEST_FILE"
 LOCK_FILE=".test-locks/${RELATIVE_PATH}.lock"
 
 if [ ! -f "$LOCK_FILE" ]; then
