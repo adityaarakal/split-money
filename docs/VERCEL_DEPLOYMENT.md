@@ -26,10 +26,12 @@ The Split Money PWA is deployed to **Vercel** for fast, global CDN distribution.
 
 2. **Configure Project**
    - **Framework Preset**: Vite
-   - **Root Directory**: Leave empty (root of repository)
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-   - **Install Command**: `npm install --ignore-scripts`
+   - **Root Directory**: ⚠️ **IMPORTANT**: Leave empty/blank (root of repository)
+     - If you see `frontend` here, **DELETE IT** - this will cause deployment failures
+     - Dashboard settings override `vercel.json` for Root Directory
+   - **Build Command**: `npm run build` (auto-filled from `vercel.json`)
+   - **Output Directory**: `dist` (auto-filled from `vercel.json`)
+   - **Install Command**: `npm install --ignore-scripts` (auto-filled from `vercel.json`)
 
 3. **Environment Variables** (if needed)
    - Add any required environment variables
@@ -173,16 +175,22 @@ Vercel automatically deploys on:
 
 ### Build Failures
 
-1. **Check Build Logs**
+1. **Root Directory Error**
+   - **Error**: `The specified Root Directory "frontend" does not exist`
+   - **Fix**: Go to Project Settings → General → Root Directory → Clear/Delete the value
+   - **See**: `docs/FIX_VERCEL_ROOT_DIRECTORY.md` for detailed instructions
+   - Dashboard settings override `vercel.json` for Root Directory
+
+2. **Check Build Logs**
    - View logs in Vercel dashboard
    - Check for dependency issues
 
-2. **Local Build Test**
+3. **Local Build Test**
    ```bash
    npm run build
    ```
 
-3. **Environment Variables**
+4. **Environment Variables**
    - Ensure all required env vars are set in Vercel
 
 ### Service Worker Issues
