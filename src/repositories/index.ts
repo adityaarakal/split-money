@@ -13,4 +13,5 @@ export { groupRepository } from './group.repository';
 export { memberRepository } from './member.repository';
 export { expenseRepository } from './expense.repository';
 export { expenseSplitRepository } from './expense-split.repository';
+export { settlementRepository } from './settlement.repository';
 
