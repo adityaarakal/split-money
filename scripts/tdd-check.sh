@@ -33,7 +33,7 @@ echo -e "${YELLOW}🚨 AI AGENTS: You cannot bypass this check - tests must pass
 echo ""
 
 # Check if we're in the right directory
-if [ ! -d "frontend" ]; then
+if [ ! -f "package.json" ]; then
   echo -e "${RED}Error: Must run from project root${NC}"
   exit 1
 fi
@@ -62,10 +62,8 @@ echo -e "${YELLOW}💡 TDD Rule: Tests define what 'working' means${NC}"
 echo -e "${YELLOW}💡 If tests fail → Fix implementation, NOT tests${NC}"
 echo ""
 
-cd frontend
 npm run test:e2e
 TEST_STATUS=$?
-cd ..
 
 if [ $TEST_STATUS -ne 0 ]; then
   echo ""

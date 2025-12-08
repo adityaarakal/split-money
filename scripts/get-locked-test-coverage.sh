@@ -36,13 +36,13 @@ while IFS= read -r test_file; do
   
   # Banks test covers useBanksStore
   if [[ "$test_file" == *"banks.spec.ts" ]]; then
-    COVERED_STORES+=("frontend/src/store/useBanksStore.ts")
+    COVERED_STORES+=("src/store/useBanksStore.ts")
   fi
   
   # Bank accounts test covers useBankAccountsStore and useBanksStore
   if [[ "$test_file" == *"bank-accounts.spec.ts" ]]; then
-    COVERED_STORES+=("frontend/src/store/useBankAccountsStore.ts")
-    COVERED_STORES+=("frontend/src/store/useBanksStore.ts")
+    COVERED_STORES+=("src/store/useBankAccountsStore.ts")
+    COVERED_STORES+=("src/store/useBanksStore.ts")
   fi
   
 done <<< "$LOCKED_TESTS"

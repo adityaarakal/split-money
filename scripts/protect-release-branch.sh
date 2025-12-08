@@ -83,14 +83,12 @@ if [ -n "$LOCKED_TESTS" ]; then
 fi
 
 # Run unit tests
-cd "$FRONTEND_DIR"
+cd "$PROJECT_ROOT"
 if ! npm run test -- --run > /dev/null 2>&1; then
   log_error "Unit tests are failing"
   log_error "❌ MERGE BLOCKED: All tests must pass before merging to release"
-  cd "$PROJECT_ROOT"
   exit 1
 fi
-cd "$PROJECT_ROOT"
 echo ""
 
 # All checks passed

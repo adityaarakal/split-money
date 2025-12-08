@@ -48,7 +48,7 @@ mkdir -p .test-locks
 CHECKSUM=$(sha256sum "$TEST_FILE" | cut -d' ' -f1)
 
 # Get relative path for lock file
-RELATIVE_PATH=$(echo "$TEST_FILE" | sed 's|^frontend/||')
+RELATIVE_PATH="$TEST_FILE"
 
 # Create lock file entry
 LOCK_FILE=".test-locks/${RELATIVE_PATH}.lock"

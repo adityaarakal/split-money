@@ -158,7 +158,7 @@ if [ -f "$COVERAGE_FILE" ] && command -v jq > /dev/null 2>&1; then
         STORE_NAME=$(basename "$store" .ts)
         TEST_FILE1="${store%.ts}.test.ts"
         TEST_FILE2="${STORE_DIR}/__tests__/${STORE_NAME}.test.ts"
-        TEST_FILE3="frontend/src/store/__tests__/${STORE_NAME}.test.ts"
+        TEST_FILE3="src/store/__tests__/${STORE_NAME}.test.ts"
         
         if [ -f "$PROJECT_ROOT/$TEST_FILE1" ] || [ -f "$PROJECT_ROOT/$TEST_FILE2" ] || [ -f "$PROJECT_ROOT/$TEST_FILE3" ]; then
           log_info "  ✓ $store (test exists)"
@@ -178,7 +178,7 @@ if [ -f "$COVERAGE_FILE" ] && command -v jq > /dev/null 2>&1; then
         UTIL_NAME=$(basename "$util" .ts)
         TEST_FILE1="${util%.ts}.test.ts"
         TEST_FILE2="${UTIL_DIR}/__tests__/${UTIL_NAME}.test.ts"
-        TEST_FILE3="frontend/src/utils/__tests__/${UTIL_NAME}.test.ts"
+        TEST_FILE3="src/utils/__tests__/${UTIL_NAME}.test.ts"
         
         if [ -f "$PROJECT_ROOT/$TEST_FILE1" ] || [ -f "$PROJECT_ROOT/$TEST_FILE2" ] || [ -f "$PROJECT_ROOT/$TEST_FILE3" ]; then
           log_info "  ✓ $util (test exists)"
@@ -199,7 +199,7 @@ if [ -f "$COVERAGE_FILE" ] && command -v jq > /dev/null 2>&1; then
         TEST_FILE1="${hook%.tsx}.test.tsx"
         TEST_FILE2="${hook%.ts}.test.ts"
         TEST_FILE3="${HOOK_DIR}/__tests__/${HOOK_NAME}.test.ts"
-        TEST_FILE4="frontend/src/hooks/__tests__/${HOOK_NAME}.test.ts"
+        TEST_FILE4="src/hooks/__tests__/${HOOK_NAME}.test.ts"
         
         if [ -f "$PROJECT_ROOT/$TEST_FILE1" ] || [ -f "$PROJECT_ROOT/$TEST_FILE2" ] || [ -f "$PROJECT_ROOT/$TEST_FILE3" ] || [ -f "$PROJECT_ROOT/$TEST_FILE4" ]; then
           log_info "  ✓ $hook (test exists)"

@@ -56,8 +56,6 @@ echo ""
 read -p "Select mode (1-4) [default: 4]: " mode
 mode=${mode:-4}
 
-cd frontend
-
 case $mode in
   1)
     echo -e "${BLUE}🎬 Running tests in UI mode (interactive)...${NC}"
@@ -75,7 +73,7 @@ case $mode in
     elif command -v xdg-open >/dev/null 2>&1; then
       xdg-open playwright-report/index.html
     else
-      echo -e "${YELLOW}⚠️  Please open: frontend/playwright-report/index.html${NC}"
+      echo -e "${YELLOW}⚠️  Please open: playwright-report/index.html${NC}"
     fi
     ;;
   3)

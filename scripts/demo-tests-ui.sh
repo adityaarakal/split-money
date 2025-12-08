@@ -19,8 +19,6 @@ echo "   • Watch tests execute in real-time"
 echo "   • See browser actions step-by-step"
 echo ""
 
-cd frontend
-
 # Run with UI mode - this opens a browser window
 # The --ui flag opens Playwright's interactive UI
 echo "🚀 Opening Playwright UI..."

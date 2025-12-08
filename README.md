@@ -224,7 +224,7 @@ If you encounter build failures:
 
 ### Web PWA (Vercel)
 
-The frontend PWA is automatically deployed to **Vercel** on every push to `main`:
+The PWA is automatically deployed to **Vercel** on every push to `main`:
 
 - **Production URL**: `https://split-money.vercel.app` (or custom domain)
 - **Preview Deployments**: Created for every PR
