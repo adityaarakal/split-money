@@ -19,11 +19,13 @@ import {
   Search as SearchIcon,
   Group as GroupIcon,
   People as PeopleIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { groupRepository } from '../../repositories';
 import type { Group } from '../../types';
 import { generateId } from '../../utils/id';
 import CreateGroupDialog from '../../components/groups/CreateGroupDialog';
+import BackupRestoreDialog from '../../components/expenses/BackupRestoreDialog';
 
 function GroupsPage() {
   const navigate = useNavigate();
@@ -32,6 +34,7 @@ function GroupsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [backupDialogOpen, setBackupDialogOpen] = useState(false);
 
   useEffect(() => {
     loadGroups();
@@ -107,14 +110,24 @@ function GroupsPage() {
           <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
           Groups
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setCreateDialogOpen(true)}
-          sx={{ minWidth: { xs: '100%', sm: 'auto' } }}
-        >
-          Create Group
-        </Button>
+        <Box display="flex" gap={1} flexDirection={{ xs: 'column', sm: 'row' }} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+          <Button
+            variant="outlined"
+            startIcon={<SettingsIcon />}
+            onClick={() => setBackupDialogOpen(true)}
+            sx={{ minWidth: { xs: '100%', sm: 'auto' } }}
+          >
+            Backup
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setCreateDialogOpen(true)}
+            sx={{ minWidth: { xs: '100%', sm: 'auto' } }}
+          >
+            Create Group
+          </Button>
+        </Box>
       </Box>
 
       {error && (
@@ -244,6 +257,12 @@ function GroupsPage() {
         open={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}
         onCreate={handleCreateGroup}
+      />
+
+      <BackupRestoreDialog
+        open={backupDialogOpen}
+        onClose={() => setBackupDialogOpen(false)}
+        onImportComplete={loadGroups}
       />
     </Container>
   );

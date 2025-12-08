@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
+  Edit as EditIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
 import type { Member } from '../../types';
@@ -18,9 +19,10 @@ import type { Member } from '../../types';
 interface MembersListProps {
   members: Member[];
   onMemberDelete: (memberId: string) => Promise<void>;
+  onMemberEdit?: (member: Member) => void;
 }
 
-function MembersList({ members, onMemberDelete }: MembersListProps) {
+function MembersList({ members, onMemberDelete, onMemberEdit }: MembersListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (memberId: string) => {
@@ -74,15 +76,27 @@ function MembersList({ members, onMemberDelete }: MembersListProps) {
         <ListItem
           key={member.id}
           secondaryAction={
-            <IconButton
-              edge="end"
-              aria-label="delete"
-              onClick={() => handleDelete(member.id)}
-              disabled={deletingId === member.id}
-              color="error"
-            >
-              <DeleteIcon />
-            </IconButton>
+            <Box>
+              {onMemberEdit && (
+                <IconButton
+                  edge="end"
+                  aria-label="edit"
+                  onClick={() => onMemberEdit(member)}
+                  sx={{ mr: 1 }}
+                >
+                  <EditIcon />
+                </IconButton>
+              )}
+              <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => handleDelete(member.id)}
+                disabled={deletingId === member.id}
+                color="error"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
           }
           sx={{
             borderRadius: 1,

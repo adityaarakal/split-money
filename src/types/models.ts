@@ -40,6 +40,8 @@ export interface Expense {
   category: string;
   date: Date;
   settled: boolean;
+  notes?: string; // Optional notes/receipt information
+  receiptUrl?: string; // Optional receipt image URL (for future image upload)
   createdAt: Date;
 }
 
