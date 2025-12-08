@@ -159,7 +159,7 @@ echo "✅ Version bump validation passed!"
 echo ""
 
 # ============================================================================
-# STEP 2: LINTING VALIDATION (Frontend + Android)
+# STEP 2: LINTING VALIDATION (Web PWA)
 # ============================================================================
 echo "📋 Step 2/6: Linting Validation"
 echo "Running lint validation (excluding test files)..."
@@ -203,7 +203,7 @@ echo "✅ Production code linting validation passed!"
 echo ""
 
 # ============================================================================
-# STEP 3: TYPE CHECKING (Frontend TypeScript + Android Kotlin)
+# STEP 3: TYPE CHECKING (TypeScript)
 # ============================================================================
 # NOTE: This check can be modified, but only by adding NEW checks
 # Modifying existing type checking logic is FORBIDDEN (enforced by lock)
@@ -241,7 +241,7 @@ echo "✅ Type checking passed!"
 echo ""
 
 # ============================================================================
-# STEP 4: BUILD VALIDATION (Frontend + Android)
+# STEP 4: BUILD VALIDATION (Web PWA)
 # ============================================================================
 # NOTE: This check can be modified, but only by adding NEW checks
 # Modifying existing build validation is FORBIDDEN (enforced by lock)

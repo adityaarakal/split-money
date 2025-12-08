@@ -247,7 +247,7 @@ EOF
       - name: Commit Version Bump
         run: |
           NEW_VERSION="${{ steps.new-version.outputs.new_version }}"
-          git add package.json frontend/package.json app/build.gradle app/build.gradle.kts frontend/public/version.json VERSION.txt CHANGELOG.md 2>/dev/null || git add package.json frontend/package.json VERSION.txt CHANGELOG.md
+          git add package.json public/version.json VERSION.txt CHANGELOG.md 2>/dev/null || git add package.json VERSION.txt public/version.json CHANGELOG.md
           git commit -m "chore: Bump version to $NEW_VERSION"
           git push
       
