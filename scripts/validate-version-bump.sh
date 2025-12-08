@@ -187,7 +187,7 @@ if ! compare_versions "$HEAD_VERSION" "$BASE_VERSION"; then
   echo "      - MAJOR increment: npm run version:major  (e.g., $BASE_VERSION -> $NEXT_MAJOR)"
   echo "      # Or manually update package.json, app/build.gradle, and VERSION.txt"
   echo "   3. Commit the version bump:"
-  echo "      git add package.json frontend/package.json VERSION.txt"
+  echo "      git add package.json VERSION.txt public/version.json"
   echo "      git commit -m 'chore: Bump version to <NEW_VERSION>'"
   echo "   4. Push and try again"
   echo ""

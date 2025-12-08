@@ -44,7 +44,7 @@
 - ✅ Commit-msg hook (bypass detection)
 
 #### Linting & Type Checking
-- ✅ ESLint for frontend
+- ✅ ESLint for Web PWA
 - ✅ TypeScript strict mode
 - ✅ Kotlin ready for Android
 - ✅ ktlint ready (when Gradle initialized)
@@ -69,9 +69,8 @@
 
 #### Version Files
 - ✅ Root package.json (source of truth)
-- ✅ frontend/package.json (synced)
-- ✅ app/build.gradle (versionName synced)
-- ✅ frontend/public/version.json (PWA)
+- ✅ package.json (root)
+- ✅ public/version.json (PWA)
 - ✅ VERSION.txt (fallback)
 
 #### Version Features

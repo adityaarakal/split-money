@@ -50,11 +50,11 @@ echo "======================================"
 echo ""
 
 COVERAGE_PASSED=true
-COVERAGE_DIR="$PROJECT_ROOT/frontend/coverage"
+COVERAGE_DIR="$PROJECT_ROOT/coverage"
 
 # Run tests with coverage
 log_step "Running unit tests with coverage..."
-cd "$FRONTEND_DIR"
+cd "$PROJECT_ROOT"
 
 # Clean previous coverage
 rm -rf "$COVERAGE_DIR"

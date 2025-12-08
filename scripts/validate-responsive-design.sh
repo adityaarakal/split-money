@@ -24,11 +24,11 @@ VALIDATION_FAILED=0
 # WEB PWA RESPONSIVE DESIGN CHECKS
 # ============================================================================
 
-if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
+if [ -f "package.json" ]; then
   echo "📱 Checking Web PWA Responsive Design..."
   
   # Check for viewport meta tag
-  if grep -q 'name="viewport"' frontend/index.html; then
+  if grep -q 'name="viewport"' index.html; then
     echo "  ✅ Viewport meta tag found"
   else
     echo "  ❌ CRITICAL: Viewport meta tag missing"
@@ -37,7 +37,7 @@ if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
   fi
   
   # Check for responsive CSS (media queries)
-  RESPONSIVE_FILES=$(find frontend/src -name "*.css" -o -name "*.tsx" -o -name "*.ts" | xargs grep -l "@media\|useMediaQuery\|responsive\|breakpoint" 2>/dev/null || echo "")
+  RESPONSIVE_FILES=$(find src -name "*.css" -o -name "*.tsx" -o -name "*.ts" | xargs grep -l "@media\|useMediaQuery\|responsive\|breakpoint" 2>/dev/null || echo "")
   if [ -n "$RESPONSIVE_FILES" ]; then
     RESPONSIVE_COUNT=$(echo "$RESPONSIVE_FILES" | wc -l | tr -d ' ')
     echo "  ✅ Found responsive design patterns in $RESPONSIVE_COUNT file(s)"
@@ -48,7 +48,7 @@ if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
   fi
   
   # Check for Material UI responsive components
-  if grep -r "useMediaQuery\|@mui/material" frontend/src --include="*.tsx" --include="*.ts" >/dev/null 2>&1; then
+  if grep -r "useMediaQuery\|@mui/material" src --include="*.tsx" --include="*.ts" >/dev/null 2>&1; then
     echo "  ✅ Material UI responsive utilities detected"
   else
     echo "  ⚠️  WARNING: Material UI responsive utilities not detected"
@@ -56,7 +56,7 @@ if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
   fi
   
   # Check for responsive layout components
-  if grep -r "Grid\|Container\|Box\|Stack" frontend/src --include="*.tsx" >/dev/null 2>&1; then
+  if grep -r "Grid\|Container\|Box\|Stack" src --include="*.tsx" >/dev/null 2>&1; then
     echo "  ✅ Responsive layout components detected"
   else
     echo "  ⚠️  WARNING: Responsive layout components not detected"
@@ -64,8 +64,8 @@ if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
   fi
   
   # Check Playwright config for responsive testing
-  if [ -f "frontend/playwright.config.ts" ]; then
-    if grep -q "Mobile\|Tablet\|Desktop\|viewport" frontend/playwright.config.ts; then
+  if [ -f "playwright.config.ts" ]; then
+    if grep -q "Mobile\|Tablet\|Desktop\|viewport" playwright.config.ts; then
       echo "  ✅ Responsive testing configured in Playwright"
     else
       echo "  ⚠️  WARNING: Responsive testing not configured in Playwright"

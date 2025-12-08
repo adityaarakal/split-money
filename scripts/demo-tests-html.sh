@@ -12,8 +12,6 @@ cd "$REPO_ROOT"
 echo "🎬 Running E2E Tests and generating HTML report..."
 echo ""
 
-cd frontend
-
 # Run tests with HTML reporter
 HTML_REPORT=1 npm run test:e2e
 
@@ -27,6 +25,6 @@ if command -v open >/dev/null 2>&1; then
 elif command -v xdg-open >/dev/null 2>&1; then
   xdg-open playwright-report/index.html
 else
-  echo "⚠️  Please manually open: frontend/playwright-report/index.html"
+  echo "⚠️  Please manually open: playwright-report/index.html"
 fi
 

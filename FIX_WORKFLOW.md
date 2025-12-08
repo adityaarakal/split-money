@@ -30,7 +30,7 @@ git commit -m "fix: Remove Gradle cache and Android checks from workflow
 
 - Remove JDK setup step (was causing Gradle cache error)
 - Remove all Android/Gradle checks from workflow
-- Update to frontend-only checks (ESLint, TypeScript, Build, E2E tests)
+- Update to Web PWA-only checks (ESLint, TypeScript, Build, E2E tests)
 - Fix Vercel header pattern (workbox-*.js -> workbox-(.*).js)
 - Update step numbering (5 steps -> 4 steps)
 
@@ -47,7 +47,7 @@ git push
 - ✅ Removed Android Kotlin compilation checks (lines 114-126)
 - ✅ Removed Android build validation (lines 155-167)
 - ✅ Removed Android test checks (lines 185-213)
-- ✅ Updated to frontend E2E tests (Playwright)
+- ✅ Updated to Web PWA E2E tests (Playwright)
 - ✅ Updated step numbering (5 steps -> 4 steps)
 
 ### Vercel Changes:

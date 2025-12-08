@@ -247,7 +247,7 @@ if command -v jq > /dev/null 2>&1; then
   LOCKED_TEST_FILES=$(jq -r '.locked_tests[]' "$COVERAGE_FILE" 2>/dev/null || echo "")
   
   # Include E2E helper files used by locked tests
-  E2E_HELPER_FILES=$(find "$FRONTEND_DIR/e2e/helpers" -name "*.ts" -type f 2>/dev/null | sed "s|^$PROJECT_ROOT/||" || echo "")
+  E2E_HELPER_FILES=$(find "$PROJECT_ROOT/e2e/helpers" -name "*.ts" -type f 2>/dev/null | sed "s|^$PROJECT_ROOT/||" || echo "")
 else
   log_error "jq not found. Cannot parse coverage file."
   exit 1
@@ -257,13 +257,11 @@ fi
 ESSENTIAL_FILES=(
   "package.json"
   "package-lock.json"
-  "frontend/package.json"
-  "frontend/package-lock.json"
-  "frontend/vite.config.ts"
-  "frontend/tsconfig.json"
-  "frontend/tsconfig.node.json"
-  "frontend/index.html"
-  "frontend/public"
+  "vite.config.ts"
+  "tsconfig.json"
+  "tsconfig.node.json"
+  "index.html"
+  "public"
   ".gitignore"
   "README.md"
   "docs/BRANCHING_AND_DEPLOYMENT_STRATEGY.md"
@@ -273,7 +271,7 @@ ESSENTIAL_FILES=(
   ".test-locks"
   "scripts"
   ".github"
-  "frontend/e2e"
+  "e2e"
 )
 
 # Build list of all files to keep

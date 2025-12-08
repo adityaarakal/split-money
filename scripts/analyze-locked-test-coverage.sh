@@ -58,7 +58,7 @@ log_info "Found locked E2E tests:"
 LOCKED_ARRAY=()
 while IFS= read -r test_file; do
   [ -z "$test_file" ] && continue
-  CLEAN_PATH=$(echo "$test_file" | sed "s|^$PROJECT_ROOT/||" | sed "s|^frontend/frontend/|frontend/|")
+  CLEAN_PATH=$(echo "$test_file" | sed "s|^$PROJECT_ROOT/||")
   log_info "  - $CLEAN_PATH"
   LOCKED_ARRAY+=("$CLEAN_PATH")
 done <<< "$LOCKED_TESTS"
@@ -94,11 +94,11 @@ for test_file in "${LOCKED_ARRAY[@]}"; do
   for route in $ROUTES; do
     case "$route" in
       /banks|/banks/*)
-        COVERED_PAGES+=("frontend/src/pages/Banks.tsx")
+        COVERED_PAGES+=("src/pages/Banks.tsx")
         COVERED_ROUTES+=("/banks")
         ;;
       /accounts|/accounts/*)
-        COVERED_PAGES+=("frontend/src/pages/BankAccounts.tsx")
+        COVERED_PAGES+=("src/pages/BankAccounts.tsx")
         COVERED_ROUTES+=("/accounts")
         ;;
     esac
@@ -108,18 +108,18 @@ for test_file in "${LOCKED_ARRAY[@]}"; do
   HELPER_IMPORTS=$(grep -E "^import.*from.*helpers" "$FULL_PATH" | grep -oE "helpers/[^'\"]+" | sort -u || echo "")
   
   for helper in $HELPER_IMPORTS; do
-    HELPER_FILE="frontend/e2e/$helper.ts"
+    HELPER_FILE="e2e/$helper.ts"
     if [ -f "$PROJECT_ROOT/$HELPER_FILE" ]; then
       # Analyze what the helper touches
       HELPER_ROUTES=$(grep -E "goto\(['\"]" "$PROJECT_ROOT/$HELPER_FILE" | grep -oE "['\"](/[^'\"]+)['\"]" | sed "s|['\"]||g" | sort -u || echo "")
       for route in $HELPER_ROUTES; do
         case "$route" in
           /banks|/banks/*)
-            COVERED_PAGES+=("frontend/src/pages/Banks.tsx")
+            COVERED_PAGES+=("src/pages/Banks.tsx")
             COVERED_ROUTES+=("/banks")
             ;;
           /accounts|/accounts/*)
-            COVERED_PAGES+=("frontend/src/pages/BankAccounts.tsx")
+            COVERED_PAGES+=("src/pages/BankAccounts.tsx")
             COVERED_ROUTES+=("/accounts")
             ;;
         esac
@@ -129,14 +129,14 @@ for test_file in "${LOCKED_ARRAY[@]}"; do
   
   # Map test names to specific stores/components
   if [[ "$test_file" == *"banks.spec.ts" ]]; then
-    COVERED_STORES+=("frontend/src/store/useBanksStore.ts")
-    COVERED_PAGES+=("frontend/src/pages/Banks.tsx")
+    COVERED_STORES+=("src/store/useBanksStore.ts")
+    COVERED_PAGES+=("src/pages/Banks.tsx")
   fi
   
   if [[ "$test_file" == *"bank-accounts.spec.ts" ]]; then
-    COVERED_STORES+=("frontend/src/store/useBankAccountsStore.ts")
-    COVERED_STORES+=("frontend/src/store/useBanksStore.ts")
-    COVERED_PAGES+=("frontend/src/pages/BankAccounts.tsx")
+    COVERED_STORES+=("src/store/useBankAccountsStore.ts")
+    COVERED_STORES+=("src/store/useBanksStore.ts")
+    COVERED_PAGES+=("src/pages/BankAccounts.tsx")
   fi
 done
 
@@ -227,7 +227,7 @@ find_dependencies() {
     RESOLVED_PATH=$(echo "$IMPORT_DIR/$import" | sed 's|/[^/]*/\.\./|/|g' | sed 's|/\./|/|g')
     
     # Only track src/ files
-    if [[ "$RESOLVED_PATH" != frontend/src/* ]]; then
+    if [[ "$RESOLVED_PATH" != src/* ]]; then
       continue
     fi
     

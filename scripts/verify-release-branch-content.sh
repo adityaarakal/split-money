@@ -39,7 +39,7 @@ COVERED_COMPONENTS=$(jq -r '.components[]' "$COVERAGE_FILE" 2>/dev/null | grep -
 COVERED_PAGES=$(jq -r '.pages[]' "$COVERAGE_FILE" 2>/dev/null | grep -v '^$' || echo "")
 
 # Get all test files in the repo
-ALL_TEST_FILES=$(find "$FRONTEND_DIR/src" -type f \( -name "*.test.ts" -o -name "*.test.tsx" \) 2>/dev/null | sed "s|^$PROJECT_ROOT/||" || echo "")
+ALL_TEST_FILES=$(find "$PROJECT_ROOT/src" -type f \( -name "*.test.ts" -o -name "*.test.tsx" \) 2>/dev/null | sed "s|^$PROJECT_ROOT/||" || echo "")
 
 # Get expected test files (only for covered code)
 EXPECTED_TEST_FILES=""

@@ -99,17 +99,14 @@ npm run dev
 
 ```
 split-money/
-├── frontend/                     # React PWA TypeScript frontend
-│   ├── src/
-│   │   ├── components/           # Reusable React components
-│   │   ├── pages/                # Page components
-│   │   ├── store/                # Zustand stores
-│   │   ├── utils/                # Utility functions
-│   │   └── types/                # TypeScript type definitions
-│   ├── public/
-│   │   └── version.json          # Version file for relative versioning
-│   ├── vite.config.ts           # Vite config with PWA plugin
-│   └── package.json
+├── src/                          # React PWA TypeScript source
+│   ├── components/               # Reusable React components
+│   ├── pages/                    # Page components
+│   ├── store/                    # Zustand stores
+│   ├── utils/                   # Utility functions
+│   └── types/                    # TypeScript type definitions
+├── public/                       # Public assets
+│   └── version.json              # Version file for relative versioning
 ├── scripts/                      # Build and enforcement scripts
 │   ├── version-utils.sh          # Version management utilities
 │   ├── validate-version-bump.sh  # Version bump validation
@@ -123,7 +120,9 @@ split-money/
 │   ├── pre-commit               # Pre-commit validation
 │   ├── pre-push                 # Pre-push validation
 │   └── commit-msg               # Commit message validation
-├── package.json                 # Root package.json (for scripts)
+├── vite.config.ts               # Vite config with PWA plugin
+├── tsconfig.json                # TypeScript configuration
+├── package.json                 # Package.json with all dependencies
 ├── VERSION.txt                  # Current version
 └── README.md
 ```
@@ -161,12 +160,11 @@ The app will be available at `http://localhost:5173` (or the port shown in termi
 npm run build
 ```
 
-The production build will be in `frontend/dist/`
+The production build will be in `dist/`
 
 ### Preview Production Build
 
 ```bash
-cd frontend
 npm run preview
 ```
 
@@ -184,15 +182,12 @@ npm run test:all
 
 ```bash
 # Lint check
-cd frontend
 npm run lint
 
 # Type check
-cd frontend
-npm run type-check
+npm run build  # TypeScript compilation is part of build
 
 # Build check
-cd frontend
 npm run build
 ```
 
@@ -216,20 +211,20 @@ npm run build
 ### Build Issues
 
 If you encounter build failures:
-- Clean and rebuild: `cd frontend && rm -rf dist node_modules && npm install && npm run build`
+- Clean and rebuild: `rm -rf dist node_modules && npm install && npm run build`
 - Check Node.js version: Ensure Node.js 18+ is installed (`node --version`)
 - Clear npm cache: `npm cache clean --force`
 
 ### Development Server Issues
 
-- Port already in use: Change port in `frontend/vite.config.ts` or kill the process using the port
-- Module not found: Run `npm install` in the root and `frontend` directory
+- Port already in use: Change port in `vite.config.ts` or kill the process using the port
+- Module not found: Run `npm install` in the root directory
 
 ## 🚀 Deployment
 
 ### Web PWA (Vercel)
 
-The frontend PWA is automatically deployed to **Vercel** on every push to `main`:
+The PWA is automatically deployed to **Vercel** on every push to `main`:
 
 - **Production URL**: `https://split-money.vercel.app` (or custom domain)
 - **Preview Deployments**: Created for every PR
@@ -245,9 +240,9 @@ See [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md) for detailed deployme
 npm run build
 ```
 
-2. Deploy `frontend/dist/` to your hosting provider:
+2. Deploy `dist/` to your hosting provider:
    - Vercel: Connect GitHub repo or use Vercel CLI
-   - Netlify: Drag and drop `frontend/dist/` folder
+   - Netlify: Drag and drop `dist/` folder
    - GitHub Pages: Configure GitHub Actions workflow
 
 ## 📝 License

@@ -55,31 +55,24 @@ if [ ! -f "package.json" ]; then
     exit 1
 fi
 
-# Check if frontend directory exists
-if [ ! -d "frontend" ]; then
-    echo -e "${RED}Error: frontend directory not found${NC}"
-    exit 1
-fi
-
 echo -e "${BLUE}📋 Test Configuration:${NC}"
 echo "  - Working directory: $(pwd)"
-echo "  - Frontend directory: frontend/"
 echo "  - Node version: $(node --version)"
 echo "  - NPM version: $(npm --version)"
 echo ""
 
 # Step 1: TypeScript Compilation Check
 echo "🔍 Step 1: Type Checking"
-run_test "TypeScript Compilation" "cd frontend && npm run build -- --mode test 2>&1 | head -20" true
+run_test "TypeScript Compilation" "npm run build -- --mode test 2>&1 | head -20" true
 
 # Step 2: Linting
 echo "🔍 Step 2: Code Quality (Linting)"
-run_test "ESLint Validation" "cd frontend && npm run lint 2>&1 | grep -v 'warning' | head -30" false
+run_test "ESLint Validation" "npm run lint 2>&1 | grep -v 'warning' | head -30" false
 
 # Step 3: Unit Tests
 echo "🧪 Step 3: Unit Tests"
-if [ -d "frontend/src" ] && find frontend/src -name "*.test.ts" -o -name "*.test.tsx" | grep -q .; then
-    run_test "Unit Tests" "cd frontend && npm test -- --run 2>&1 | tail -20" false
+if [ -d "src" ] && find src -name "*.test.ts" -o -name "*.test.tsx" | grep -q .; then
+    run_test "Unit Tests" "npm test -- --run 2>&1 | tail -20" false
 else
     echo -e "${YELLOW}⚠️  No unit tests found${NC}"
     ((SKIPPED++))
@@ -88,8 +81,8 @@ fi
 
 # Step 4: Integration Tests
 echo "🔗 Step 4: Integration Tests"
-if [ -d "frontend/src/integration" ] && find frontend/src/integration -name "*.test.ts" | grep -q .; then
-    run_test "Integration Tests" "cd frontend && npm test -- --run src/integration 2>&1 | tail -20" false
+if [ -d "src/integration" ] && find src/integration -name "*.test.ts" | grep -q .; then
+    run_test "Integration Tests" "npm test -- --run src/integration 2>&1 | tail -20" false
 else
     echo -e "${YELLOW}⚠️  No integration tests found${NC}"
     ((SKIPPED++))
@@ -98,7 +91,7 @@ fi
 
 # Step 5: Build Validation
 echo "🏗️  Step 5: Build Validation"
-run_test "Production Build" "cd frontend && npm run build 2>&1 | tail -30" true
+run_test "Production Build" "npm run build 2>&1 | tail -30" true
 
 # Step 6: E2E Tests (if Playwright is available)
 echo "🌐 Step 6: E2E Tests"
@@ -120,26 +113,26 @@ if command -v npx &> /dev/null && npx playwright --version &> /dev/null; then
         
         # Run E2E tests on Chromium only (faster for CI)
         if [ "$CI" = "true" ]; then
-            run_test "E2E Tests (Chromium)" "cd frontend && npm run test:e2e -- --project=chromium 2>&1 | tail -40" false
+            run_test "E2E Tests (Chromium)" "npm run test:e2e -- --project=chromium 2>&1 | tail -40" false
         else
             # In local, ask user which tests to run
             echo -e "${YELLOW}  ⚠️  To run E2E tests, use:${NC}"
-            echo "    cd frontend && npm run test:e2e"
+            echo "    npm run test:e2e"
             echo "    # Or for specific browser:"
-            echo "    cd frontend && npm run test:e2e -- --project=chromium"
-            echo "    cd frontend && npm run test:e2e -- --project=firefox"
-            echo "    cd frontend && npm run test:e2e -- --project=webkit"
+            echo "    npm run test:e2e -- --project=chromium"
+            echo "    npm run test:e2e -- --project=firefox"
+            echo "    npm run test:e2e -- --project=webkit"
             ((SKIPPED++))
         fi
     else
         echo -e "${YELLOW}  ⚠️  Dev server not running on port 7001${NC}"
         echo -e "${YELLOW}     Start with: npm run dev${NC}"
-        echo -e "${YELLOW}     Then run: cd frontend && npm run test:e2e${NC}"
+        echo -e "${YELLOW}     Then run: npm run test:e2e${NC}"
         ((SKIPPED++))
     fi
 else
     echo -e "${YELLOW}  ⚠️  Playwright not available${NC}"
-    echo -e "${YELLOW}     Install with: cd frontend && npx playwright install${NC}"
+    echo -e "${YELLOW}     Install with: npx playwright install${NC}"
     ((SKIPPED++))
 fi
 
@@ -154,8 +147,8 @@ fi
 
 # Step 8: Bundle Size Check
 echo "📊 Step 8: Bundle Size Check"
-if [ -f "frontend/dist/bundle-info.json" ]; then
-    BUNDLE_SIZE=$(cat frontend/dist/bundle-info.json | grep -o '"totalSize": [0-9]*' | grep -o '[0-9]*')
+if [ -f "dist/bundle-info.json" ]; then
+    BUNDLE_SIZE=$(cat dist/bundle-info.json | grep -o '"totalSize": [0-9]*' | grep -o '[0-9]*')
     if [ ! -z "$BUNDLE_SIZE" ]; then
         BUNDLE_MB=$(echo "scale=2; $BUNDLE_SIZE / 1024 / 1024" | bc)
         echo -e "${GREEN}  ✓ Bundle size: ${BUNDLE_MB} MB${NC}"

@@ -19,7 +19,6 @@ NC='\033[0m' # No Color
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-FRONTEND_DIR="$PROJECT_ROOT/frontend"
 LOCK_DIR="$PROJECT_ROOT/.test-locks"
 
 # Logging functions
@@ -45,8 +44,8 @@ log_step() {
 
 # Check if we're in the project root
 check_project_root() {
-  if [ ! -d "$FRONTEND_DIR" ]; then
-    log_error "Frontend directory not found. Please run from project root."
+  if [ ! -f "$PROJECT_ROOT/package.json" ]; then
+    log_error "package.json not found. Please run from project root."
     exit 1
   fi
 }
@@ -60,14 +59,13 @@ get_locked_tests() {
   
   find "$LOCK_DIR" -name "*.lock" -type f 2>/dev/null | \
     sed "s|^$LOCK_DIR/||" | \
-    sed 's|\.lock$||' | \
-    sed 's|^|frontend/|' || echo ""
+    sed 's|\.lock$||' || echo ""
 }
 
 # Check if a test file is locked
 is_test_locked() {
   local test_file="$1"
-  local relative_path=$(echo "$test_file" | sed 's|^frontend/||')
+  local relative_path="$test_file"
   local lock_file="$LOCK_DIR/$relative_path.lock"
   
   [ -f "$lock_file" ] && return 0 || return 1
@@ -77,7 +75,7 @@ is_test_locked() {
 get_test_file_from_lock() {
   local lock_file="$1"
   local relative_path=$(echo "$lock_file" | sed 's|^\.test-locks/||' | sed 's|\.lock$||')
-  echo "frontend/$relative_path"
+  echo "$relative_path"
 }
 
 # Run Playwright tests and check if they pass
@@ -87,7 +85,7 @@ run_playwright_tests() {
   
   log_step "Running Playwright tests..."
   
-  cd "$FRONTEND_DIR"
+  cd "$PROJECT_ROOT"
   
   if [ -z "$test_files" ]; then
     log_warning "No test files specified"
@@ -99,7 +97,7 @@ run_playwright_tests() {
     [ -z "$test_file" ] && continue
     
     # Clean up path - remove any absolute path prefixes
-    CLEAN_PATH=$(echo "$test_file" | sed "s|^$PROJECT_ROOT/||" | sed "s|^frontend/frontend/|frontend/|")
+    CLEAN_PATH=$(echo "$test_file" | sed "s|^$PROJECT_ROOT/||")
     
     # Check if file exists (try both relative and absolute)
     if [ ! -f "$PROJECT_ROOT/$CLEAN_PATH" ] && [ ! -f "$CLEAN_PATH" ]; then
@@ -108,8 +106,8 @@ run_playwright_tests() {
       continue
     fi
     
-    # Use relative path from frontend directory
-    RELATIVE_PATH=$(echo "$CLEAN_PATH" | sed 's|^frontend/||')
+    # Use relative path
+    RELATIVE_PATH="$CLEAN_PATH"
     
     log_info "Running: $RELATIVE_PATH"
     if npm run test:e2e -- "$RELATIVE_PATH" > /dev/null 2>&1; then
@@ -128,15 +126,15 @@ run_playwright_tests() {
 run_unit_tests_with_coverage() {
   log_step "Running unit tests with coverage..."
   
-  cd "$FRONTEND_DIR"
+  cd "$PROJECT_ROOT"
   
   # Get code covered by locked E2E tests
   COVERAGE_FILE="$PROJECT_ROOT/.release-coverage/locked-e2e-coverage.json"
   
   if [ -f "$COVERAGE_FILE" ] && command -v jq > /dev/null 2>&1; then
-    COVERED_STORES=$(jq -r '.stores[]' "$COVERAGE_FILE" 2>/dev/null | sed 's|frontend/src/store/||' | sed 's|\.ts$||' | sort -u || echo "")
-    COVERED_UTILS=$(jq -r '.utils[]' "$COVERAGE_FILE" 2>/dev/null | sed 's|frontend/src/utils/||' | sed 's|\.ts$||' | sort -u || echo "")
-    COVERED_HOOKS=$(jq -r '.hooks[]' "$COVERAGE_FILE" 2>/dev/null | sed 's|frontend/src/hooks/||' | sed 's|\.tsx$||' | sed 's|\.ts$||' | sort -u || echo "")
+    COVERED_STORES=$(jq -r '.stores[]' "$COVERAGE_FILE" 2>/dev/null | sed 's|src/store/||' | sed 's|\.ts$||' | sort -u || echo "")
+    COVERED_UTILS=$(jq -r '.utils[]' "$COVERAGE_FILE" 2>/dev/null | sed 's|src/utils/||' | sed 's|\.ts$||' | sort -u || echo "")
+    COVERED_HOOKS=$(jq -r '.hooks[]' "$COVERAGE_FILE" 2>/dev/null | sed 's|src/hooks/||' | sed 's|\.tsx$||' | sed 's|\.ts$||' | sort -u || echo "")
   else
     COVERED_STORES=""
     COVERED_UTILS=""
@@ -230,16 +228,16 @@ verify_locked_tests() {
 
 # Get utils files that need 100% coverage
 get_utils_files() {
-  find "$FRONTEND_DIR/src/utils" -name "*.ts" -type f ! -name "*.test.ts" ! -name "*.spec.ts" 2>/dev/null | \
+  find "$PROJECT_ROOT/src/utils" -name "*.ts" -type f ! -name "*.test.ts" ! -name "*.spec.ts" 2>/dev/null | \
     sed "s|^$PROJECT_ROOT/||" || echo ""
 }
 
 # Get services/hooks files that need 100% coverage
 get_services_hooks_files() {
   {
-    find "$FRONTEND_DIR/src/store" -name "*.ts" -type f ! -name "*.test.ts" ! -name "*.spec.ts" 2>/dev/null
-    find "$FRONTEND_DIR/src/hooks" -name "*.ts" -type f ! -name "*.test.ts" ! -name "*.spec.ts" 2>/dev/null
-    find "$FRONTEND_DIR/src/hooks" -name "*.tsx" -type f ! -name "*.test.tsx" ! -name "*.spec.tsx" 2>/dev/null
+    find "$PROJECT_ROOT/src/store" -name "*.ts" -type f ! -name "*.test.ts" ! -name "*.spec.ts" 2>/dev/null
+    find "$PROJECT_ROOT/src/hooks" -name "*.ts" -type f ! -name "*.test.ts" ! -name "*.spec.ts" 2>/dev/null
+    find "$PROJECT_ROOT/src/hooks" -name "*.tsx" -type f ! -name "*.test.tsx" ! -name "*.spec.tsx" 2>/dev/null
   } | sed "s|^$PROJECT_ROOT/||" || echo ""
 }
 

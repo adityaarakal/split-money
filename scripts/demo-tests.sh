@@ -29,10 +29,8 @@ echo ""
 if ! curl -s http://localhost:7001 > /dev/null 2>&1; then
   echo -e "${YELLOW}⚠️  Dev server not running on port 7001${NC}"
   echo -e "${YELLOW}   Starting dev server in background...${NC}"
-  cd frontend
   npm run dev > /dev/null 2>&1 &
   DEV_SERVER_PID=$!
-  cd ..
   
   # Wait for server to start
   echo -e "${BLUE}⏳ Waiting for dev server to start...${NC}"
@@ -58,8 +56,6 @@ echo ""
 read -p "Select mode (1-4) [default: 4]: " mode
 mode=${mode:-4}
 
-cd frontend
-
 case $mode in
   1)
     echo -e "${BLUE}🎬 Running tests in UI mode (interactive)...${NC}"
@@ -77,7 +73,7 @@ case $mode in
     elif command -v xdg-open >/dev/null 2>&1; then
       xdg-open playwright-report/index.html
     else
-      echo -e "${YELLOW}⚠️  Please open: frontend/playwright-report/index.html${NC}"
+      echo -e "${YELLOW}⚠️  Please open: playwright-report/index.html${NC}"
     fi
     ;;
   3)

@@ -8,7 +8,7 @@ build/
 *.tsbuildinfo
 */dist/
 */build/
-frontend/public/bundle-info.json
+public/bundle-info.json
 
 # Android (removed - Web PWA only)
 # Keeping minimal Android ignores in case of future needs

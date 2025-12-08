@@ -114,7 +114,7 @@ detect_changed_modules() {
     fi
     
     # Check for shared/common changes - these affect all modules
-    if echo "$file" | grep -qE "frontend/src/(components/common|providers|utils|hooks|theme|App\.tsx|main\.tsx)"; then
+    if echo "$file" | grep -qE "src/(components/common|providers|utils|hooks|theme|App\.tsx|main\.tsx)"; then
       echo "all_modules" > /tmp/test_modules.txt
       return 0
     fi
@@ -128,7 +128,7 @@ detect_changed_modules() {
     fi
     
     # Check route changes
-    if echo "$file" | grep -q "frontend/src/routes"; then
+    if echo "$file" | grep -q "src/routes"; then
       if echo "$file" | grep -qi "dashboard"; then
         if ! module_in_list "dashboard" "$modules_found"; then
           modules_found="$modules_found dashboard"
@@ -160,7 +160,7 @@ get_test_files() {
   for module in $modules; do
     local test_file_name=$(get_test_file "$module")
     if [ -n "$test_file_name" ]; then
-      local test_file="frontend/e2e/modules/$test_file_name"
+      local test_file="e2e/modules/$test_file_name"
       if [ -f "$test_file" ]; then
         test_files="$test_files $test_file"
       else
@@ -200,7 +200,7 @@ echo "=========================================="
 echo ""
 
 # Check if we're in the right directory
-if [ ! -d "frontend" ]; then
+if [ ! -f "package.json" ]; then
   echo -e "${RED}Error: Must run from project root${NC}"
   exit 1
 fi
@@ -263,11 +263,11 @@ fi
 echo -e "${BLUE}🚀 Running Playwright tests...${NC}"
 echo ""
 
-cd frontend
+# Already in project root - no need to cd
 
 # Build test file pattern for Playwright
 # Playwright uses file paths relative to testDir (which is now e2e/modules)
-# So we need to convert frontend/e2e/modules/dashboard.spec.ts to just dashboard.spec.ts
+# So we need to convert e2e/modules/dashboard.spec.ts to just dashboard.spec.ts
 TEST_PATTERNS=""
 for file in $TEST_FILES; do
   # Extract just the filename since testDir is now e2e/modules

@@ -47,10 +47,9 @@ while IFS= read -r lock_file; do
   [ -z "$lock_file" ] && continue
   
   # Get test file path from lock file path
-  # .test-locks/e2e/modules/dashboard.spec.ts.lock -> frontend/e2e/modules/dashboard.spec.ts
-  # Lock files are stored relative to frontend/, so prepend frontend/
+  # .test-locks/e2e/modules/dashboard.spec.ts.lock -> e2e/modules/dashboard.spec.ts
   relative_path=$(echo "$lock_file" | sed 's|^\.test-locks/||' | sed 's|\.lock$||')
-  test_file="frontend/$relative_path"
+  test_file="$relative_path"
   
   if [ ! -f "$test_file" ]; then
     echo -e "${YELLOW}⚠️  Test file not found (may have been deleted): $test_file${NC}"
