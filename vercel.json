@@ -5,7 +5,6 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install --ignore-scripts",
   "framework": "vite",
-  "rootDirectory": ".",
   "rewrites": [
     {
       "source": "/(.*)",
