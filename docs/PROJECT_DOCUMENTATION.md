@@ -443,8 +443,8 @@
 
 ```
 Phase 1: Foundation & Setup          ✅ COMPLETED (Week 1)
-Phase 2: Data Models & Storage      🔄 IN PROGRESS (Week 2)
-Phase 3: Groups & Members           📋 PLANNED (Week 3)
+Phase 2: Data Models & Storage      ✅ COMPLETED (Week 2)
+Phase 3: Groups & Members           ✅ COMPLETED (Week 3)
 Phase 4: Expenses                   📋 PLANNED (Week 4-5)
 Phase 5: Balance & Settlement       📋 PLANNED (Week 6)
 Phase 6: Analytics & Reports        📋 PLANNED (Week 7)
