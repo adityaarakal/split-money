@@ -22,6 +22,7 @@ import {
   ArrowBack as ArrowBackIcon,
   Analytics as AnalyticsIcon,
   Download as DownloadIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { groupRepository } from '../../repositories';
 import type { Group } from '../../types';
@@ -58,6 +59,8 @@ import {
 import CategoryBreakdownChart from '../../components/analytics/CategoryBreakdownChart';
 import SpendingTrendChart from '../../components/analytics/SpendingTrendChart';
 import MemberSpendingChart from '../../components/analytics/MemberSpendingChart';
+import DashboardCustomizationDialog from '../../components/analytics/DashboardCustomizationDialog';
+import { getDashboardPreferences } from '../../services/dashboard-preferences.service';
 
 function GroupAnalyticsPage() {
   const { groupId } = useParams<{ groupId: string }>();
@@ -69,6 +72,8 @@ function GroupAnalyticsPage() {
   const [trendDays, setTrendDays] = useState(30);
   const [timePeriod, setTimePeriod] = useState<'monthly' | 'weekly'>('monthly');
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
+  const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
+  const [dashboardPreferences, setDashboardPreferences] = useState(getDashboardPreferences());
 
   // Analytics data
   const [categoryBreakdown, setCategoryBreakdown] = useState<CategoryBreakdown[]>([]);
@@ -214,13 +219,22 @@ function GroupAnalyticsPage() {
             )}
           </Box>
         </Box>
-        <Button
-          variant="outlined"
-          startIcon={<DownloadIcon />}
-          onClick={(e) => setExportMenuAnchor(e.currentTarget)}
-        >
-          Export Report
-        </Button>
+        <Box display="flex" gap={1}>
+          <Button
+            variant="outlined"
+            startIcon={<SettingsIcon />}
+            onClick={() => setCustomizationDialogOpen(true)}
+          >
+            Customize
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+          >
+            Export Report
+          </Button>
+        </Box>
         <Menu
           anchorEl={exportMenuAnchor}
           open={Boolean(exportMenuAnchor)}
@@ -260,14 +274,34 @@ function GroupAnalyticsPage() {
       )}
 
       <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)} sx={{ mb: 3 }}>
-        <Tab label="Overview" />
-        <Tab label="Categories" />
-        <Tab label="Trends" />
-        <Tab label="Members" />
-        <Tab label="Time Analysis" />
-        <Tab label="Patterns" />
-        <Tab label="Balance Analytics" />
+        {dashboardPreferences.widgets.find((w) => w.id === 'category-breakdown')?.visible && (
+          <Tab label="Overview" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'category-breakdown')?.visible && (
+          <Tab label="Categories" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'spending-trends')?.visible && (
+          <Tab label="Trends" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'member-spending')?.visible && (
+          <Tab label="Members" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'time-analysis')?.visible && (
+          <Tab label="Time Analysis" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'patterns')?.visible && (
+          <Tab label="Patterns" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'balance-analytics')?.visible && (
+          <Tab label="Balance Analytics" />
+        )}
       </Tabs>
+
+      <DashboardCustomizationDialog
+        open={customizationDialogOpen}
+        onClose={() => setCustomizationDialogOpen(false)}
+        onSave={() => setDashboardPreferences(getDashboardPreferences())}
+      />
 
       {tabValue === 0 && (
         <Grid container spacing={3}>

@@ -211,7 +211,7 @@
 - [x] Design analytics dashboard layout ✅ COMPLETED
 - [x] Create dashboard UI (Web) ✅ COMPLETED
 - [x] Add dashboard widgets ✅ COMPLETED
-- [ ] Implement dashboard customization (Optional - future enhancement)
+- [x] Implement dashboard customization ✅ COMPLETED (widget show/hide, preferences stored in localStorage)
 - [x] Add dashboard filters ✅ COMPLETED
 
 #### 6.2 Expense Analytics
@@ -256,7 +256,7 @@
 - [x] Define typography ✅ COMPLETED
 - [x] Create component library ✅ COMPLETED
 - [x] Document design system ✅ COMPLETED
-- [ ] Create style guide (Optional - can be added later)
+- [x] Create style guide ✅ COMPLETED (comprehensive style guide documentation)
 
 #### 7.2 Web UI
 - [x] Implement Material UI components ✅ COMPLETED
