@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -11,8 +11,6 @@ import {
   CardActions,
   TextField,
   InputAdornment,
-  CircularProgress,
-  Alert,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -20,51 +18,96 @@ import {
   Group as GroupIcon,
   People as PeopleIcon,
   Settings as SettingsIcon,
+  Delete as DeleteIcon,
+  Notifications as NotificationsIcon,
 } from '@mui/icons-material';
 import { groupRepository } from '../../repositories';
 import type { Group } from '../../types';
 import { generateId } from '../../utils/id';
 import CreateGroupDialog from '../../components/groups/CreateGroupDialog';
 import BackupRestoreDialog from '../../components/expenses/BackupRestoreDialog';
+import BalanceAlertsDialog from '../../components/balances/BalanceAlertsDialog';
+import { useToast } from '../../context/ToastContext';
+import { EmptyState, ErrorState, SkeletonList } from '../../components/common';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { checkAllBalanceAlerts } from '../../services/balance-alerts.service';
 
 function GroupsPage() {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [backupDialogOpen, setBackupDialogOpen] = useState(false);
+  const [balanceAlertsOpen, setBalanceAlertsOpen] = useState(false);
+  const [alertCount, setAlertCount] = useState(0);
 
-  useEffect(() => {
-    loadGroups();
-  }, []);
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: 'n',
+      ctrlKey: true,
+      handler: () => setCreateDialogOpen(true),
+    },
+  ]);
 
-  const loadGroups = async () => {
+  const loadGroups = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const allGroups = await groupRepository.getAll();
       setGroups(allGroups);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load groups');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load groups';
+      setError(errorMessage);
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
+
+  useEffect(() => {
+    loadGroups();
+  }, [loadGroups]);
+
+  // Check for balance alerts
+  useEffect(() => {
+    const checkAlerts = async () => {
+      try {
+        const groupNames = new Map(groups.map((g) => [g.id, g.name]));
+        const groupIds = groups.map((g) => g.id);
+        const alerts = await checkAllBalanceAlerts(groupIds, groupNames);
+        setAlertCount(alerts.length);
+      } catch (error) {
+        console.error('Error checking balance alerts:', error);
+      }
+    };
+
+    if (groups.length > 0) {
+      checkAlerts();
+    }
+  }, [groups]);
 
   const handleCreateGroup = async (name: string, description?: string) => {
-    const newGroup: Group = {
-      id: generateId(),
-      name,
-      description,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    await groupRepository.create(newGroup);
-    await loadGroups();
-    setCreateDialogOpen(false);
-    navigate(`/groups/${newGroup.id}`);
+    try {
+      const newGroup: Group = {
+        id: generateId(),
+        name,
+        description,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      await groupRepository.create(newGroup);
+      await loadGroups();
+      setCreateDialogOpen(false);
+      showSuccess(`Group "${name}" created successfully`);
+      navigate(`/groups/${newGroup.id}`);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create group';
+      showError(errorMessage);
+    }
   };
 
   const handleDeleteGroup = async (groupId: string) => {
@@ -74,8 +117,10 @@ function GroupsPage() {
     try {
       await groupRepository.delete(groupId);
       await loadGroups();
+      showSuccess('Group deleted successfully');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete group');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete group';
+      showError(errorMessage);
     }
   };
 
@@ -85,14 +130,17 @@ function GroupsPage() {
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="100vh"
-      >
-        <CircularProgress />
-      </Box>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <SkeletonList count={3} />
+      </Container>
+    );
+  }
+
+  if (error && groups.length === 0) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <ErrorState message={error} onRetry={loadGroups} />
+      </Container>
     );
   }
 
@@ -111,6 +159,17 @@ function GroupsPage() {
           Groups
         </Typography>
         <Box display="flex" gap={1} flexDirection={{ xs: 'column', sm: 'row' }} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+          {alertCount > 0 && (
+            <Button
+              variant="outlined"
+              color="warning"
+              startIcon={<NotificationsIcon />}
+              onClick={() => setBalanceAlertsOpen(true)}
+              sx={{ minWidth: { xs: '100%', sm: 'auto' } }}
+            >
+              Alerts ({alertCount})
+            </Button>
+          )}
           <Button
             variant="outlined"
             startIcon={<SettingsIcon />}
@@ -130,12 +189,6 @@ function GroupsPage() {
         </Box>
       </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
-
       <TextField
         fullWidth
         placeholder="Search groups..."
@@ -151,37 +204,13 @@ function GroupsPage() {
         }}
       />
 
-      {filteredGroups.length === 0 ? (
-        <Box
-          textAlign="center"
-          py={8}
-          sx={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            borderRadius: 3,
-            color: 'white',
-          }}
-        >
-          <GroupIcon sx={{ fontSize: 64, mb: 2, opacity: 0.7 }} />
-          <Typography variant="h6" gutterBottom>
-            {searchTerm ? 'No groups found' : 'No groups yet'}
-          </Typography>
-          <Typography variant="body2" sx={{ opacity: 0.9, mb: 3 }}>
-            {searchTerm
-              ? 'Try a different search term'
-              : 'Create your first group to get started'}
-          </Typography>
-          {!searchTerm && (
-            <Button
-              variant="contained"
-              color="inherit"
-              startIcon={<AddIcon />}
-              onClick={() => setCreateDialogOpen(true)}
-              sx={{ bgcolor: 'white', color: '#667eea', '&:hover': { bgcolor: '#f5f5f5' } }}
-            >
-              Create Group
-            </Button>
-          )}
-        </Box>
+      {filteredGroups.length === 0 && !loading ? (
+        <EmptyState
+          title={searchTerm ? 'No groups found' : 'No groups yet'}
+          description={searchTerm ? 'Try adjusting your search terms' : 'Create your first group to get started'}
+          actionLabel="Create Group"
+          onAction={() => setCreateDialogOpen(true)}
+        />
       ) : (
         <Grid container spacing={3}>
           {filteredGroups.map((group) => (
@@ -195,54 +224,39 @@ function GroupsPage() {
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-4px)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    boxShadow: 4,
                   },
                 }}
                 onClick={() => navigate(`/groups/${group.id}`)}
               >
                 <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="h6" component="h2" gutterBottom>
-                    {group.name}
-                  </Typography>
+                  <Box display="flex" alignItems="center" gap={1} mb={1}>
+                    <GroupIcon color="primary" />
+                    <Typography variant="h6" component="h2" fontWeight="bold">
+                      {group.name}
+                    </Typography>
+                  </Box>
                   {group.description && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        mb: 2,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                    >
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                       {group.description}
                     </Typography>
                   )}
-                  <Box display="flex" alignItems="center" gap={1} mt={2}>
+                  <Box display="flex" alignItems="center" gap={1}>
                     <PeopleIcon fontSize="small" color="action" />
                     <Typography variant="body2" color="text.secondary">
                       Members
                     </Typography>
                   </Box>
                 </CardContent>
-                <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
+                <CardActions sx={{ justifyContent: 'flex-end', px: 2, pb: 2 }}>
                   <Button
                     size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/groups/${group.id}`);
-                    }}
-                  >
-                    View Details
-                  </Button>
-                  <Button
-                    size="small"
-                    color="error"
+                    startIcon={<DeleteIcon />}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteGroup(group.id);
                     }}
+                    color="error"
                   >
                     Delete
                   </Button>
@@ -251,6 +265,12 @@ function GroupsPage() {
             </Grid>
           ))}
         </Grid>
+      )}
+
+      {error && groups.length > 0 && (
+        <Box sx={{ mt: 2 }}>
+          <ErrorState message={error} onRetry={loadGroups} />
+        </Box>
       )}
 
       <CreateGroupDialog
@@ -263,6 +283,11 @@ function GroupsPage() {
         open={backupDialogOpen}
         onClose={() => setBackupDialogOpen(false)}
         onImportComplete={loadGroups}
+      />
+
+      <BalanceAlertsDialog
+        open={balanceAlertsOpen}
+        onClose={() => setBalanceAlertsOpen(false)}
       />
     </Container>
   );

@@ -22,6 +22,7 @@ import {
   ArrowBack as ArrowBackIcon,
   Analytics as AnalyticsIcon,
   Download as DownloadIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { groupRepository } from '../../repositories';
 import type { Group } from '../../types';
@@ -40,6 +41,20 @@ import {
   type ReportData,
 } from '../../services/report.service';
 import {
+  generateReportWithTemplate,
+  getAvailableTemplates,
+  type ReportTemplate,
+} from '../../services/report-templates.service';
+import {
+  getBalanceTrends,
+  getBalanceDistribution,
+  getBalanceAnalyticsSummary,
+  type BalanceTrend,
+  type BalanceDistribution,
+  type BalanceAnalyticsSummary,
+} from '../../services/balance-analytics.service';
+import BalanceTrendChart from '../../components/analytics/BalanceTrendChart';
+import {
   getDayOfWeekPatterns,
   getCategoryPatterns,
   getAmountRangePatterns,
@@ -49,6 +64,8 @@ import {
 import CategoryBreakdownChart from '../../components/analytics/CategoryBreakdownChart';
 import SpendingTrendChart from '../../components/analytics/SpendingTrendChart';
 import MemberSpendingChart from '../../components/analytics/MemberSpendingChart';
+import DashboardCustomizationDialog from '../../components/analytics/DashboardCustomizationDialog';
+import { getDashboardPreferences } from '../../services/dashboard-preferences.service';
 
 function GroupAnalyticsPage() {
   const { groupId } = useParams<{ groupId: string }>();
@@ -60,6 +77,9 @@ function GroupAnalyticsPage() {
   const [trendDays, setTrendDays] = useState(30);
   const [timePeriod, setTimePeriod] = useState<'monthly' | 'weekly'>('monthly');
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
+  const [templateMenuAnchor, setTemplateMenuAnchor] = useState<null | HTMLElement>(null);
+  const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
+  const [dashboardPreferences, setDashboardPreferences] = useState(getDashboardPreferences());
 
   // Analytics data
   const [categoryBreakdown, setCategoryBreakdown] = useState<CategoryBreakdown[]>([]);
@@ -69,6 +89,11 @@ function GroupAnalyticsPage() {
   const [dayPatterns, setDayPatterns] = useState<ExpensePattern[]>([]);
   const [categoryPatterns, setCategoryPatterns] = useState<CategoryPattern[]>([]);
   const [amountRangePatterns, setAmountRangePatterns] = useState<Array<{ range: string; count: number; totalAmount: number }>>([]);
+  
+  // Balance analytics data
+  const [balanceTrends, setBalanceTrends] = useState<BalanceTrend[]>([]);
+  const [balanceDistribution, setBalanceDistribution] = useState<BalanceDistribution[]>([]);
+  const [balanceSummary, setBalanceSummary] = useState<BalanceAnalyticsSummary | null>(null);
 
   useEffect(() => {
     if (groupId) {
@@ -98,7 +123,7 @@ function GroupAnalyticsPage() {
     if (!groupId) return;
     try {
       setLoading(true);
-      const [categories, trends, members, timeData, dayPatternsData, categoryPatternsData, amountRanges] = await Promise.all([
+      const [categories, trends, members, timeData, dayPatternsData, categoryPatternsData, amountRanges, balanceTrendsData, balanceDistData, balanceSummaryData] = await Promise.all([
         getCategoryBreakdown(groupId),
         getSpendingTrends(groupId, trendDays),
         getMemberSpending(groupId),
@@ -106,6 +131,9 @@ function GroupAnalyticsPage() {
         getDayOfWeekPatterns(groupId),
         getCategoryPatterns(groupId),
         getAmountRangePatterns(groupId),
+        getBalanceTrends(groupId),
+        getBalanceDistribution(groupId),
+        getBalanceAnalyticsSummary(groupId),
       ]);
       setCategoryBreakdown(categories);
       setSpendingTrends(trends);
@@ -114,6 +142,9 @@ function GroupAnalyticsPage() {
       setDayPatterns(dayPatternsData);
       setCategoryPatterns(categoryPatternsData);
       setAmountRangePatterns(amountRanges);
+      setBalanceTrends(balanceTrendsData);
+      setBalanceDistribution(balanceDistData);
+      setBalanceSummary(balanceSummaryData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load analytics');
     } finally {
@@ -121,7 +152,7 @@ function GroupAnalyticsPage() {
     }
   };
 
-  const handleExportReport = async (format: 'csv' | 'text' = 'csv') => {
+  const handleExportReport = async (format: 'csv' | 'text' | 'pdf' = 'csv') => {
     if (!groupId || !group) return;
     
     try {
@@ -142,6 +173,32 @@ function GroupAnalyticsPage() {
       };
 
       await generateAndDownloadReport(reportData, format);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to export report');
+    }
+  };
+
+  const handleExportWithTemplate = async (template: ReportTemplate, format: 'csv' | 'text' | 'pdf' = 'pdf') => {
+    if (!groupId || !group) return;
+    
+    try {
+      const totalExpenses = categoryBreakdown.reduce((sum, cat) => sum + cat.expenseCount, 0);
+      const totalAmount = categoryBreakdown.reduce((sum, cat) => sum + cat.totalAmount, 0);
+      const memberCount = memberSpending.length;
+
+      const reportData: ReportData = {
+        group,
+        categoryBreakdown,
+        spendingTrends,
+        memberSpending,
+        timeAnalysis,
+        totalExpenses,
+        totalAmount,
+        memberCount,
+        generatedAt: new Date(),
+      };
+
+      generateReportWithTemplate(reportData, template, format);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to export report');
     }
@@ -194,13 +251,51 @@ function GroupAnalyticsPage() {
             )}
           </Box>
         </Box>
-        <Button
-          variant="outlined"
-          startIcon={<DownloadIcon />}
-          onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+        <Box display="flex" gap={1}>
+          <Button
+            variant="outlined"
+            startIcon={<SettingsIcon />}
+            onClick={() => setCustomizationDialogOpen(true)}
+          >
+            Customize
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={(e) => setTemplateMenuAnchor(e.currentTarget)}
+          >
+            Templates
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+          >
+            Export Report
+          </Button>
+        </Box>
+        <Menu
+          anchorEl={templateMenuAnchor}
+          open={Boolean(templateMenuAnchor)}
+          onClose={() => setTemplateMenuAnchor(null)}
         >
-          Export Report
-        </Button>
+          {getAvailableTemplates().map(({ id, config }) => (
+            <MenuItem
+              key={id}
+              onClick={() => {
+                setTemplateMenuAnchor(null);
+                handleExportWithTemplate(id, 'pdf');
+              }}
+            >
+              <Box>
+                <Typography variant="body1">{config.name}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {config.description}
+                </Typography>
+              </Box>
+            </MenuItem>
+          ))}
+        </Menu>
         <Menu
           anchorEl={exportMenuAnchor}
           open={Boolean(exportMenuAnchor)}
@@ -222,6 +317,14 @@ function GroupAnalyticsPage() {
           >
             Export as Text
           </MenuItem>
+          <MenuItem
+            onClick={async () => {
+              setExportMenuAnchor(null);
+              await handleExportReport('pdf');
+            }}
+          >
+            Export as PDF
+          </MenuItem>
         </Menu>
       </Box>
 
@@ -232,13 +335,34 @@ function GroupAnalyticsPage() {
       )}
 
       <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)} sx={{ mb: 3 }}>
-        <Tab label="Overview" />
-        <Tab label="Categories" />
-        <Tab label="Trends" />
-        <Tab label="Members" />
-        <Tab label="Time Analysis" />
-        <Tab label="Patterns" />
+        {dashboardPreferences.widgets.find((w) => w.id === 'category-breakdown')?.visible && (
+          <Tab label="Overview" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'category-breakdown')?.visible && (
+          <Tab label="Categories" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'spending-trends')?.visible && (
+          <Tab label="Trends" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'member-spending')?.visible && (
+          <Tab label="Members" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'time-analysis')?.visible && (
+          <Tab label="Time Analysis" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'patterns')?.visible && (
+          <Tab label="Patterns" />
+        )}
+        {dashboardPreferences.widgets.find((w) => w.id === 'balance-analytics')?.visible && (
+          <Tab label="Balance Analytics" />
+        )}
       </Tabs>
+
+      <DashboardCustomizationDialog
+        open={customizationDialogOpen}
+        onClose={() => setCustomizationDialogOpen(false)}
+        onSave={() => setDashboardPreferences(getDashboardPreferences())}
+      />
 
       {tabValue === 0 && (
         <Grid container spacing={3}>
@@ -532,6 +656,90 @@ function GroupAnalyticsPage() {
                           <td style={{ textAlign: 'right' }}>{pattern.frequency}</td>
                           <td style={{ textAlign: 'right' }}>${pattern.totalAmount.toFixed(2)}</td>
                           <td style={{ textAlign: 'right' }}>${pattern.averageAmount.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      )}
+
+      {tabValue === 6 && (
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12 }}>
+            <BalanceTrendChart data={balanceTrends} groupName={group?.name} />
+          </Grid>
+          {balanceSummary && (
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Balance Summary
+                  </Typography>
+                  <Box component="table" sx={{ width: '100%', mt: 2 }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Total Owed:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>${balanceSummary.totalOwed.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Total Owed To:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>${balanceSummary.totalOwedTo.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Net Balance:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>${balanceSummary.netBalance.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Members Owing:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>{balanceSummary.membersOwing}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Members Owed:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>{balanceSummary.membersOwed}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Average Owed:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>${balanceSummary.averageOwed.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Average Owed To:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>${balanceSummary.averageOwedTo.toFixed(2)}</td>
+                      </tr>
+                    </tbody>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Balance Distribution
+                </Typography>
+                {balanceDistribution.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    No balance distribution data available
+                  </Typography>
+                ) : (
+                  <Box component="table" sx={{ width: '100%', mt: 2 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: 'left' }}>Range</th>
+                        <th style={{ textAlign: 'right' }}>Members</th>
+                        <th style={{ textAlign: 'right' }}>Total Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {balanceDistribution.map((item) => (
+                        <tr key={item.range}>
+                          <td>{item.range}</td>
+                          <td style={{ textAlign: 'right' }}>{item.memberCount}</td>
+                          <td style={{ textAlign: 'right' }}>${item.totalAmount.toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>

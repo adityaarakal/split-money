@@ -83,3 +83,4 @@ export class ExpenseRepository extends BaseRepository<Expense> {
 export const expenseRepository = new ExpenseRepository();
 
 
+

@@ -64,3 +64,4 @@ export class MemberRepository extends BaseRepository<Member> {
 export const memberRepository = new MemberRepository();
 
 
+
