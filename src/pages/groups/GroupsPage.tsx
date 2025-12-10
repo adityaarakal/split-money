@@ -18,6 +18,7 @@ import {
   Group as GroupIcon,
   People as PeopleIcon,
   Settings as SettingsIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { groupRepository } from '../../repositories';
 import type { Group } from '../../types';
@@ -217,7 +218,7 @@ function GroupsPage() {
                 <CardActions sx={{ justifyContent: 'flex-end', px: 2, pb: 2 }}>
                   <Button
                     size="small"
-                    startIcon={<SettingsIcon />}
+                    startIcon={<DeleteIcon />}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteGroup(group.id);

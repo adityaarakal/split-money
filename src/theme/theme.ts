@@ -100,7 +100,8 @@ export const lightThemeOptions: ThemeOptions = {
     },
   },
   shape: {
-    borderRadius: parseInt(designTokens.borderRadius.lg),
+    // Parse rem value: '0.75rem' -> 0.75 * 16 = 12px (assuming 16px base font size)
+    borderRadius: parseFloat(designTokens.borderRadius.lg) * 16,
   },
   components: {
     MuiButton: {

@@ -21,10 +21,11 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
     const handleKeyDown = (event: KeyboardEvent) => {
       for (const shortcut of shortcuts) {
         const keyMatch = event.key.toLowerCase() === shortcut.key.toLowerCase();
-        const ctrlMatch = shortcut.ctrlKey === undefined ? true : event.ctrlKey === shortcut.ctrlKey;
-        const shiftMatch = shortcut.shiftKey === undefined ? true : event.shiftKey === shortcut.shiftKey;
-        const altMatch = shortcut.altKey === undefined ? true : event.altKey === shortcut.altKey;
-        const metaMatch = shortcut.metaKey === undefined ? true : event.metaKey === shortcut.metaKey;
+        // Undefined modifiers should default to false (not pressed)
+        const ctrlMatch = shortcut.ctrlKey === undefined ? !event.ctrlKey : event.ctrlKey === shortcut.ctrlKey;
+        const shiftMatch = shortcut.shiftKey === undefined ? !event.shiftKey : event.shiftKey === shortcut.shiftKey;
+        const altMatch = shortcut.altKey === undefined ? !event.altKey : event.altKey === shortcut.altKey;
+        const metaMatch = shortcut.metaKey === undefined ? !event.metaKey : event.metaKey === shortcut.metaKey;
 
         // Don't trigger if user is typing in an input field
         const isInputFocused =
