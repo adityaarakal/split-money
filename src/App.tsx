@@ -6,6 +6,7 @@ import { AppBar } from './components/layout/AppBar';
 import GroupsPage from './pages/groups/GroupsPage';
 import GroupDetailPage from './pages/groups/GroupDetailPage';
 import GroupAnalyticsPage from './pages/analytics/GroupAnalyticsPage';
+import GroupComparisonPage from './pages/analytics/GroupComparisonPage';
 import './index.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/groups" element={<GroupsPage />} />
                 <Route path="/groups/:groupId" element={<GroupDetailPage />} />
                 <Route path="/groups/:groupId/analytics" element={<GroupAnalyticsPage />} />
+                <Route path="/groups/compare" element={<GroupComparisonPage />} />
               </Routes>
             </Box>
           </Box>

@@ -192,8 +192,8 @@
 - [ ] Add balance notifications (Optional - Phase 8)
 - [ ] Implement balance alerts (Optional - Phase 8)
 - [x] Add balance export ✅ COMPLETED
-- [ ] Create balance analytics (Optional - Phase 6)
-- [ ] Add balance trends (Optional - Phase 6)
+- [x] Create balance analytics ✅ COMPLETED (balance trends, distribution, summary)
+- [x] Add balance trends ✅ COMPLETED (balance trends chart added to analytics)
 
 **Deliverables:**
 - Balance calculation engine
@@ -219,7 +219,7 @@
 - [x] Add spending trends ✅ COMPLETED
 - [x] Create time-based analysis ✅ COMPLETED
 - [x] Add member-wise analysis ✅ COMPLETED
-- [ ] Implement group comparison (Optional - future enhancement)
+- [x] Implement group comparison ✅ COMPLETED (group comparison page and service)
 - [x] Add expense patterns ✅ COMPLETED
 
 #### 6.3 Visualizations
@@ -233,7 +233,7 @@
 #### 6.4 Reports
 - [x] Design report templates ✅ COMPLETED
 - [x] Implement report generation ✅ COMPLETED
-- [ ] Add PDF export (Optional - requires jsPDF library)
+- [x] Add PDF export ✅ COMPLETED (using jsPDF library)
 - [x] Add CSV export ✅ COMPLETED
 - [ ] Create email reports (Optional - requires email service)
 - [ ] Add report scheduling (Optional - requires background jobs)
@@ -508,6 +508,12 @@ Phase 2 → Phase 3 → Phase 4 → Phase 5
   - Backup export/import functionality
   - Invalid file handling
   - Empty file handling
+
+### Optional Features Completed (2024-12-06)
+- ✅ **Balance Analytics**: Balance trends, distribution, and summary analytics
+- ✅ **Balance Trends**: Balance trend visualization chart added to analytics dashboard
+- ✅ **PDF Export**: PDF report generation using jsPDF library
+- ✅ **Group Comparison**: Compare spending across multiple groups with summary statistics
 
 ### Recent Bug Fixes (2024-12-06)
 - ✅ Fixed keyboard shortcut modifier matching logic

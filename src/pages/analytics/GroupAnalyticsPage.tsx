@@ -40,6 +40,15 @@ import {
   type ReportData,
 } from '../../services/report.service';
 import {
+  getBalanceTrends,
+  getBalanceDistribution,
+  getBalanceAnalyticsSummary,
+  type BalanceTrend,
+  type BalanceDistribution,
+  type BalanceAnalyticsSummary,
+} from '../../services/balance-analytics.service';
+import BalanceTrendChart from '../../components/analytics/BalanceTrendChart';
+import {
   getDayOfWeekPatterns,
   getCategoryPatterns,
   getAmountRangePatterns,
@@ -69,6 +78,11 @@ function GroupAnalyticsPage() {
   const [dayPatterns, setDayPatterns] = useState<ExpensePattern[]>([]);
   const [categoryPatterns, setCategoryPatterns] = useState<CategoryPattern[]>([]);
   const [amountRangePatterns, setAmountRangePatterns] = useState<Array<{ range: string; count: number; totalAmount: number }>>([]);
+  
+  // Balance analytics data
+  const [balanceTrends, setBalanceTrends] = useState<BalanceTrend[]>([]);
+  const [balanceDistribution, setBalanceDistribution] = useState<BalanceDistribution[]>([]);
+  const [balanceSummary, setBalanceSummary] = useState<BalanceAnalyticsSummary | null>(null);
 
   useEffect(() => {
     if (groupId) {
@@ -98,7 +112,7 @@ function GroupAnalyticsPage() {
     if (!groupId) return;
     try {
       setLoading(true);
-      const [categories, trends, members, timeData, dayPatternsData, categoryPatternsData, amountRanges] = await Promise.all([
+      const [categories, trends, members, timeData, dayPatternsData, categoryPatternsData, amountRanges, balanceTrendsData, balanceDistData, balanceSummaryData] = await Promise.all([
         getCategoryBreakdown(groupId),
         getSpendingTrends(groupId, trendDays),
         getMemberSpending(groupId),
@@ -106,6 +120,9 @@ function GroupAnalyticsPage() {
         getDayOfWeekPatterns(groupId),
         getCategoryPatterns(groupId),
         getAmountRangePatterns(groupId),
+        getBalanceTrends(groupId),
+        getBalanceDistribution(groupId),
+        getBalanceAnalyticsSummary(groupId),
       ]);
       setCategoryBreakdown(categories);
       setSpendingTrends(trends);
@@ -114,6 +131,9 @@ function GroupAnalyticsPage() {
       setDayPatterns(dayPatternsData);
       setCategoryPatterns(categoryPatternsData);
       setAmountRangePatterns(amountRanges);
+      setBalanceTrends(balanceTrendsData);
+      setBalanceDistribution(balanceDistData);
+      setBalanceSummary(balanceSummaryData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load analytics');
     } finally {
@@ -121,7 +141,7 @@ function GroupAnalyticsPage() {
     }
   };
 
-  const handleExportReport = async (format: 'csv' | 'text' = 'csv') => {
+  const handleExportReport = async (format: 'csv' | 'text' | 'pdf' = 'csv') => {
     if (!groupId || !group) return;
     
     try {
@@ -222,6 +242,14 @@ function GroupAnalyticsPage() {
           >
             Export as Text
           </MenuItem>
+          <MenuItem
+            onClick={async () => {
+              setExportMenuAnchor(null);
+              await handleExportReport('pdf');
+            }}
+          >
+            Export as PDF
+          </MenuItem>
         </Menu>
       </Box>
 
@@ -238,6 +266,7 @@ function GroupAnalyticsPage() {
         <Tab label="Members" />
         <Tab label="Time Analysis" />
         <Tab label="Patterns" />
+        <Tab label="Balance Analytics" />
       </Tabs>
 
       {tabValue === 0 && (
@@ -532,6 +561,90 @@ function GroupAnalyticsPage() {
                           <td style={{ textAlign: 'right' }}>{pattern.frequency}</td>
                           <td style={{ textAlign: 'right' }}>${pattern.totalAmount.toFixed(2)}</td>
                           <td style={{ textAlign: 'right' }}>${pattern.averageAmount.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      )}
+
+      {tabValue === 6 && (
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12 }}>
+            <BalanceTrendChart data={balanceTrends} groupName={group?.name} />
+          </Grid>
+          {balanceSummary && (
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Balance Summary
+                  </Typography>
+                  <Box component="table" sx={{ width: '100%', mt: 2 }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Total Owed:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>${balanceSummary.totalOwed.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Total Owed To:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>${balanceSummary.totalOwedTo.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Net Balance:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>${balanceSummary.netBalance.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Members Owing:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>{balanceSummary.membersOwing}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Members Owed:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>{balanceSummary.membersOwed}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Average Owed:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>${balanceSummary.averageOwed.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ textAlign: 'left', padding: '8px 0' }}>Average Owed To:</td>
+                        <td style={{ textAlign: 'right', padding: '8px 0' }}>${balanceSummary.averageOwedTo.toFixed(2)}</td>
+                      </tr>
+                    </tbody>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Balance Distribution
+                </Typography>
+                {balanceDistribution.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    No balance distribution data available
+                  </Typography>
+                ) : (
+                  <Box component="table" sx={{ width: '100%', mt: 2 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: 'left' }}>Range</th>
+                        <th style={{ textAlign: 'right' }}>Members</th>
+                        <th style={{ textAlign: 'right' }}>Total Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {balanceDistribution.map((item) => (
+                        <tr key={item.range}>
+                          <td>{item.range}</td>
+                          <td style={{ textAlign: 'right' }}>{item.memberCount}</td>
+                          <td style={{ textAlign: 'right' }}>${item.totalAmount.toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>
