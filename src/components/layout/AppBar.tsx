@@ -9,6 +9,7 @@ import { Group as GroupIcon, Notifications as NotificationsIcon } from '@mui/ico
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ThemeToggle } from '../common/ThemeToggle';
+import { PWAInstallButton } from '../common/PWAInstallButton';
 import BalanceAlertsDialog from '../balances/BalanceAlertsDialog';
 import { checkAllBalanceAlerts } from '../../services/balance-alerts.service';
 import { groupRepository } from '../../repositories';
@@ -69,6 +70,7 @@ export function AppBar() {
                 </Badge>
               </IconButton>
             )}
+            <PWAInstallButton size="small" />
             <ThemeToggle />
           </Box>
         </Toolbar>

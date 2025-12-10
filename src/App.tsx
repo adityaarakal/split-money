@@ -3,13 +3,27 @@ import { CssBaseline, Box } from '@mui/material';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
 import { AppBar } from './components/layout/AppBar';
+import { OfflineIndicator } from './components/common/OfflineIndicator';
+import { ServiceWorkerUpdateDialog } from './components/common/ServiceWorkerUpdateDialog';
 import GroupsPage from './pages/groups/GroupsPage';
 import GroupDetailPage from './pages/groups/GroupDetailPage';
 import GroupAnalyticsPage from './pages/analytics/GroupAnalyticsPage';
 import GroupComparisonPage from './pages/analytics/GroupComparisonPage';
+import { useServiceWorkerUpdate } from './hooks/useServiceWorkerUpdate';
+import { useState, useEffect } from 'react';
 import './index.css';
 
 function App() {
+  const { updateAvailable } = useServiceWorkerUpdate();
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+
+  // Show update dialog when update is available
+  useEffect(() => {
+    if (updateAvailable) {
+      setUpdateDialogOpen(true);
+    }
+  }, [updateAvailable]);
+
   return (
     <ThemeProvider>
       <CssBaseline />
@@ -27,6 +41,11 @@ function App() {
               </Routes>
             </Box>
           </Box>
+          <OfflineIndicator />
+          <ServiceWorkerUpdateDialog
+            open={updateDialogOpen}
+            onClose={() => setUpdateDialogOpen(false)}
+          />
         </BrowserRouter>
       </ToastProvider>
     </ThemeProvider>
