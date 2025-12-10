@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -19,16 +19,18 @@ import {
   People as PeopleIcon,
   Settings as SettingsIcon,
   Delete as DeleteIcon,
+  Notifications as NotificationsIcon,
 } from '@mui/icons-material';
 import { groupRepository } from '../../repositories';
 import type { Group } from '../../types';
 import { generateId } from '../../utils/id';
 import CreateGroupDialog from '../../components/groups/CreateGroupDialog';
 import BackupRestoreDialog from '../../components/expenses/BackupRestoreDialog';
+import BalanceAlertsDialog from '../../components/balances/BalanceAlertsDialog';
 import { useToast } from '../../context/ToastContext';
 import { EmptyState, ErrorState, SkeletonList } from '../../components/common';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
-import { useCallback } from 'react';
+import { checkAllBalanceAlerts } from '../../services/balance-alerts.service';
 
 function GroupsPage() {
   const navigate = useNavigate();
@@ -39,6 +41,8 @@ function GroupsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [backupDialogOpen, setBackupDialogOpen] = useState(false);
+  const [balanceAlertsOpen, setBalanceAlertsOpen] = useState(false);
+  const [alertCount, setAlertCount] = useState(0);
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
@@ -67,6 +71,24 @@ function GroupsPage() {
   useEffect(() => {
     loadGroups();
   }, [loadGroups]);
+
+  // Check for balance alerts
+  useEffect(() => {
+    const checkAlerts = async () => {
+      try {
+        const groupNames = new Map(groups.map((g) => [g.id, g.name]));
+        const groupIds = groups.map((g) => g.id);
+        const alerts = await checkAllBalanceAlerts(groupIds, groupNames);
+        setAlertCount(alerts.length);
+      } catch (error) {
+        console.error('Error checking balance alerts:', error);
+      }
+    };
+
+    if (groups.length > 0) {
+      checkAlerts();
+    }
+  }, [groups]);
 
   const handleCreateGroup = async (name: string, description?: string) => {
     try {
@@ -137,6 +159,17 @@ function GroupsPage() {
           Groups
         </Typography>
         <Box display="flex" gap={1} flexDirection={{ xs: 'column', sm: 'row' }} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+          {alertCount > 0 && (
+            <Button
+              variant="outlined"
+              color="warning"
+              startIcon={<NotificationsIcon />}
+              onClick={() => setBalanceAlertsOpen(true)}
+              sx={{ minWidth: { xs: '100%', sm: 'auto' } }}
+            >
+              Alerts ({alertCount})
+            </Button>
+          )}
           <Button
             variant="outlined"
             startIcon={<SettingsIcon />}
@@ -250,6 +283,11 @@ function GroupsPage() {
         open={backupDialogOpen}
         onClose={() => setBackupDialogOpen(false)}
         onImportComplete={loadGroups}
+      />
+
+      <BalanceAlertsDialog
+        open={balanceAlertsOpen}
+        onClose={() => setBalanceAlertsOpen(false)}
       />
     </Container>
   );

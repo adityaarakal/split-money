@@ -189,8 +189,8 @@
 - [x] Create settlement reports ✅ COMPLETED
 
 #### 5.4 Balance Features
-- [ ] Add balance notifications (Optional - Phase 8)
-- [ ] Implement balance alerts (Optional - Phase 8)
+- [x] Add balance notifications ✅ COMPLETED (in-app balance alerts with configurable thresholds)
+- [x] Implement balance alerts ✅ COMPLETED (client-side alerts, no backend required)
 - [x] Add balance export ✅ COMPLETED
 - [x] Create balance analytics ✅ COMPLETED (balance trends, distribution, summary)
 - [x] Add balance trends ✅ COMPLETED (balance trends chart added to analytics)
@@ -235,6 +235,7 @@
 - [x] Implement report generation ✅ COMPLETED
 - [x] Add PDF export ✅ COMPLETED (using jsPDF library)
 - [x] Add CSV export ✅ COMPLETED
+- [x] Add report templates ✅ COMPLETED (5 predefined templates: summary, detailed, category focus, member focus, trends focus)
 - [ ] Create email reports (Optional - requires email service)
 - [ ] Add report scheduling (Optional - requires background jobs)
 
@@ -512,9 +513,11 @@ Phase 2 → Phase 3 → Phase 4 → Phase 5
 ### Optional Features Completed (2024-12-06)
 - ✅ **Balance Analytics**: Balance trends, distribution, and summary analytics
 - ✅ **Balance Trends**: Balance trend visualization chart added to analytics dashboard
+- ✅ **Balance Alerts**: In-app balance alerts with configurable thresholds (high balance, owed to you, you owe)
 - ✅ **PDF Export**: PDF report generation using jsPDF library
 - ✅ **Group Comparison**: Compare spending across multiple groups with summary statistics
 - ✅ **Dashboard Customization**: Widget show/hide functionality with preferences persistence
+- ✅ **Report Templates**: 5 predefined report templates (summary, detailed, category focus, member focus, trends focus)
 - ✅ **Style Guide**: Comprehensive style guide documentation
 
 ### Recent Bug Fixes (2024-12-06)

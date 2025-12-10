@@ -41,6 +41,11 @@ import {
   type ReportData,
 } from '../../services/report.service';
 import {
+  generateReportWithTemplate,
+  getAvailableTemplates,
+  type ReportTemplate,
+} from '../../services/report-templates.service';
+import {
   getBalanceTrends,
   getBalanceDistribution,
   getBalanceAnalyticsSummary,
@@ -72,6 +77,7 @@ function GroupAnalyticsPage() {
   const [trendDays, setTrendDays] = useState(30);
   const [timePeriod, setTimePeriod] = useState<'monthly' | 'weekly'>('monthly');
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
+  const [templateMenuAnchor, setTemplateMenuAnchor] = useState<null | HTMLElement>(null);
   const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
   const [dashboardPreferences, setDashboardPreferences] = useState(getDashboardPreferences());
 
@@ -172,6 +178,32 @@ function GroupAnalyticsPage() {
     }
   };
 
+  const handleExportWithTemplate = async (template: ReportTemplate, format: 'csv' | 'text' | 'pdf' = 'pdf') => {
+    if (!groupId || !group) return;
+    
+    try {
+      const totalExpenses = categoryBreakdown.reduce((sum, cat) => sum + cat.expenseCount, 0);
+      const totalAmount = categoryBreakdown.reduce((sum, cat) => sum + cat.totalAmount, 0);
+      const memberCount = memberSpending.length;
+
+      const reportData: ReportData = {
+        group,
+        categoryBreakdown,
+        spendingTrends,
+        memberSpending,
+        timeAnalysis,
+        totalExpenses,
+        totalAmount,
+        memberCount,
+        generatedAt: new Date(),
+      };
+
+      generateReportWithTemplate(reportData, template, format);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to export report');
+    }
+  };
+
   if (loading && !group) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
@@ -230,11 +262,40 @@ function GroupAnalyticsPage() {
           <Button
             variant="outlined"
             startIcon={<DownloadIcon />}
+            onClick={(e) => setTemplateMenuAnchor(e.currentTarget)}
+          >
+            Templates
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
             onClick={(e) => setExportMenuAnchor(e.currentTarget)}
           >
             Export Report
           </Button>
         </Box>
+        <Menu
+          anchorEl={templateMenuAnchor}
+          open={Boolean(templateMenuAnchor)}
+          onClose={() => setTemplateMenuAnchor(null)}
+        >
+          {getAvailableTemplates().map(({ id, config }) => (
+            <MenuItem
+              key={id}
+              onClick={() => {
+                setTemplateMenuAnchor(null);
+                handleExportWithTemplate(id, 'pdf');
+              }}
+            >
+              <Box>
+                <Typography variant="body1">{config.name}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {config.description}
+                </Typography>
+              </Box>
+            </MenuItem>
+          ))}
+        </Menu>
         <Menu
           anchorEl={exportMenuAnchor}
           open={Boolean(exportMenuAnchor)}
