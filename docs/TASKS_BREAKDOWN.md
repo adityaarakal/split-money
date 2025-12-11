@@ -520,6 +520,9 @@ Phase 2 → Phase 3 → Phase 4 → Phase 5
 - ✅ **Dashboard Customization**: Widget show/hide functionality with preferences persistence
 - ✅ **Report Templates**: 5 predefined report templates (summary, detailed, category focus, member focus, trends focus)
 - ✅ **Style Guide**: Comprehensive style guide documentation
+- ✅ **PWA Shortcuts**: 3 shortcuts for quick actions (Create Group, Add Expense, View Analytics)
+- ✅ **Share Target**: Receive shared content from other apps
+- ✅ **File Handling**: Import files via file handlers (JSON, CSV)
 
 ### Recent Bug Fixes (2024-12-06)
 - ✅ Fixed keyboard shortcut modifier matching logic
