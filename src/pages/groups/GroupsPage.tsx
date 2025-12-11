@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -34,6 +34,7 @@ import { checkAllBalanceAlerts } from '../../services/balance-alerts.service';
 
 function GroupsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { showSuccess, showError } = useToast();
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +44,30 @@ function GroupsPage() {
   const [backupDialogOpen, setBackupDialogOpen] = useState(false);
   const [balanceAlertsOpen, setBalanceAlertsOpen] = useState(false);
   const [alertCount, setAlertCount] = useState(0);
+
+  // Handle URL actions (from PWA shortcuts or share target)
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'create') {
+      setCreateDialogOpen(true);
+      // Clear action from URL
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('action');
+      navigate(`/groups?${newSearchParams.toString()}`, { replace: true });
+    } else if (action === 'add-expense' && groups.length > 0) {
+      // Navigate to first group's detail page
+      navigate(`/groups/${groups[0].id}`);
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('action');
+      navigate(`/groups/${groups[0].id}?${newSearchParams.toString()}`, { replace: true });
+    } else if (action === 'analytics' && groups.length > 0) {
+      // Navigate to first group's analytics
+      navigate(`/groups/${groups[0].id}/analytics`);
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('action');
+      navigate(`/groups/${groups[0].id}/analytics?${newSearchParams.toString()}`, { replace: true });
+    }
+  }, [searchParams, groups, navigate]);
 
   // Keyboard shortcuts
   useKeyboardShortcuts([

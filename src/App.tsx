@@ -11,6 +11,7 @@ import GroupAnalyticsPage from './pages/analytics/GroupAnalyticsPage';
 import GroupComparisonPage from './pages/analytics/GroupComparisonPage';
 import { useServiceWorkerUpdate } from './hooks/useServiceWorkerUpdate';
 import { useState, useEffect } from 'react';
+import { ShareHandler } from './components/common/ShareHandler';
 import './index.css';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
       <CssBaseline />
       <ToastProvider>
         <BrowserRouter>
+          <ShareHandler />
           <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <AppBar />
             <Box component="main" sx={{ flexGrow: 1 }}>

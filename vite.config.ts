@@ -188,6 +188,65 @@ export default defineConfig({
             type: 'image/png',
             purpose: 'any maskable'
           }
+        ],
+        shortcuts: [
+          {
+            name: 'Create Group',
+            short_name: 'New Group',
+            description: 'Create a new expense group',
+            url: `${basePath}groups?action=create`,
+            icons: [
+              {
+                src: 'pwa-192x192.png',
+                sizes: '192x192',
+                type: 'image/png'
+              }
+            ]
+          },
+          {
+            name: 'Add Expense',
+            short_name: 'New Expense',
+            description: 'Add a new expense',
+            url: `${basePath}groups?action=add-expense`,
+            icons: [
+              {
+                src: 'pwa-192x192.png',
+                sizes: '192x192',
+                type: 'image/png'
+              }
+            ]
+          },
+          {
+            name: 'View Analytics',
+            short_name: 'Analytics',
+            description: 'View expense analytics',
+            url: `${basePath}groups?action=analytics`,
+            icons: [
+              {
+                src: 'pwa-192x192.png',
+                sizes: '192x192',
+                type: 'image/png'
+              }
+            ]
+          }
+        ],
+        share_target: {
+          action: `${basePath}groups?action=share`,
+          method: 'GET',
+          params: {
+            title: 'title',
+            text: 'text',
+            url: 'url'
+          }
+        },
+        file_handlers: [
+          {
+            action: `${basePath}groups?action=import`,
+            accept: {
+              'application/json': ['.json'],
+              'text/csv': ['.csv']
+            }
+          }
         ]
       },
       workbox: {

@@ -18,5 +18,6 @@ export { ConfirmDialog } from './ConfirmDialog';
 export { OfflineIndicator } from './OfflineIndicator';
 export { PWAInstallButton } from './PWAInstallButton';
 export { ServiceWorkerUpdateDialog } from './ServiceWorkerUpdateDialog';
+export { ShareHandler } from './ShareHandler';
 
 
